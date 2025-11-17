@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>A Test of LaTeX and a quick post about Adaboost</title>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body bgcolor="#E6E6FA" text="#000000">
+
+  <center>
+    <h1>My Web Log</h1>
+    <p>~ A collection of my thoughts ~</p>
+    <b><a href="../index.html">BACK TO HOME</a></b>
+    <b><a href = "../blog.html">BACK TO BLOG</a></b>
+  </center>
+
+  <hr>
+
+  <h3>A Test of LaTeX and a quick post about Adaboost</h3>
+  <p><b>Date:</b> November 17, 2025</p>
+  <p> </p>
+
+  This post serves two purposes. First, I want to test if \(\LaTeX\) gets rendered. Okay, it did! Second, I want to write something about Adaboost, which is a 
+  boosting algorithm in machine learning. I mainly learned about this from CS 270 with <a href="https://people.eecs.berkeley.edu/~satishr/">Satish Rao</a>; in my opinion,
+  the class is the most enjoyable one I am taking this semester. The class is not about machine learning and focuses more on algorithms, but it covers some things from machine learning as well. 
+  I highly reccomend this class. 
+  
+  <br>
+  <br>
+
+  In CS 270, we approached Adaboost from the multiplicative weights framework. We first begin with some definitions and then the problem statement.
+
+  <br>
+  <br>
+
+  <b>Definition 1. </b> A <i>weak learner</i> is an algorithm that can always find a hypothesis \(h\) that correctly classifies at least a \(1/2 + \gamma\) fraction of the points correctly.
+
+  <br>
+  <br>
+
+  <b>Definition 2.</b> A <i>strong learner</i> is an algorithm that can find a hypothesis \(h\) that correctly classifies at least a \(1 - \mu\) fraction of the points correctly.
+
+  <br>
+  <br>
+  The problem that Adaboost aims to solve is the following.
+<br>
+<br>
+  <b>Problem. </b> Given a weak learner and \(n\) labeled data points, can we produce a strong learner?
+  <br>
+  <br>
+  The answer is yes, and Adaboost is an algorithm that allows us to do this. It's honestly pretty crazy that we can do this. My mind is always blown when I remember this result. 
+  It's almost magic. 
+  <br>
+  <br>
+  Adaboost uses the multiplicative weights (MW) method to achieve this. The idea is that the points (which are called experts in the MW language) play a game against the weak learner (which is called the adversary). 
+  The goal of the data points is to avoid being classified correctly. 
+  <br>
+  <br>
+  <hr>
+  <br>
+  <b>Adaboost</b>
+  <br>
+  1. Initialize weights \(w_i = 1\) for all \(n\) data points. <br>
+  2. For \(t = 1\) to \(T\): <br>
+     &emsp; a. Call the weak learner on the weighted data points to get a hypothesis \(h_t\) that correctly classifies \(1/2 + \gamma\) of the points correctly. <br>
+     &emsp; b. For each data point, if it is classified correctly by \(h_t\), update its weight \(w_i \leftarrow (1 - \epsilon) w_i\). <br>
+  3. Output the final hypothesis \(H(x) \equiv \text{majority}(h_1(x), \dots h_T(x))\). <br>
+  <br>
+  <hr>
+  <br>
+  <b>Correctness</b>
+  <br>
+The proof of correctness of Adaboost is pretty standard in MW analysis. We begin with bounding the total weight \(W\) after \(T\) rounds. Let the set \(S\) be the set of points that were misclassified by the final hypothesis. 
+For each point \(s \in S\), it must have been classified by at least half of the hypotheses incorrectly. Hence, the total weight satisfies \(W(t) \geq |S|(1 - \epsilon)^{T/2}\). 
+Now, each hypothesis classifies at least a \(1/2 + \gamma\) fraction of the points correctly. This implies that the total weight decreases by \[\begin{align} W(t) - W(t + 1) &= \sum_{i \in \text{Correct}} \epsilon w_i. \\ \Rightarrow 1 - W(t+1)/W(t) &=  \epsilon \sum_{i \in \text{Correct}}  w_i/W(t).  \\ \Rightarrow E[W(t+1)/W(t)] &\leq 1 - \epsilon( 1/2 + \gamma). \end{align} \] 
+
+in each round. Thus, we have \(W(t) = n(1 - \epsilon/2 - \epsilon \gamma)^T \leq n e^{-\epsilon(1/2 + \gamma)T}, \) 
+using the fact that \((1 - \epsilon)^x \leq e^{-\epsilon x}\). Combining our bounds, we have \[\begin{align}|S|(1 - \epsilon)^{T/2} \leq W(T) \leq ne^{-\epsilon (1/2 + \gamma)} \end{align}.\]
+Setting \(\epsilon = \gamma\) and taking logarithms on both sides, we get 
+\[\begin{align}\ln(|S|) + \frac{T}{2} \ln(1 - \gamma) \leq \ln(n) - \gamma T \left (\frac{1}{2} + \gamma \right)\end{align}.\]
+Using the approximation that \(\ln(1 - \gamma) = - \gamma - \gamma^2\) and rearranging, we obtain \[\ln\left(\frac{|S|}{n}\right) \leq -\frac{\gamma^2 T}{2}.\] From this, it is apparent that as \(T\rightarrow \infty\), \(|S|/n \rightarrow 0\). If we run the algorithm for \(T = (2/\gamma^2) \ln(1/\mu)\) rounds, we obtain 
+\[\ln\left(\frac{|S|}{n}\right) \leq \ln \mu \] or \(|S|/n \leq \mu\). Thus, the fraction of misclassified points is at most \(\mu\), and we have constructed a strong learner.
+
+<br>
+<br>
+<hr>
+<br>I was pretty handwaivy in some parts of the proof (like the upper bound on \(W\)), but the main idea is there. The key takeaway is that by using the multiplicative weights method, we can boost a weak learner into a strong learner. MW is overpowered. Thanks for reading! I hope the \(\LaTeX\) rendered, and hopefully, I can write more posts like this in the future. <br> <br> s-n-sharma
+
+<hr>
+  <br>
+  <p><i><font size="-1">Copyright 2025 - s-n-sharma</font></i></p>
+</html>
