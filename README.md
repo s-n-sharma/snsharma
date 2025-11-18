@@ -1,2 +1,2 @@
-My personal website, located at: https://s-n-sharma.github.io/snsharma/index.html
+My personal website, located at: https://snsharma.xyz
 
