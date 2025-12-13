@@ -1,30 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title> I have started playing Hearts of Iron 4 and I am enjoying it </title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hearts of Iron IV</title>
+    
+    <link rel="stylesheet" href="../style.css">
+
+    <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+    </script>
+    
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
-<body bgcolor="#E6E6FA" text="#000000">
+<body>
 
-  <center>
-    <h1>My Web Log</h1>
-    <p>~ A collection of my thoughts ~</p>
-    <b><a href="../index.html">BACK TO HOME</a></b>
-    <b><a href = "../blog.html">BACK TO BLOG</a></b>
-  </center>
+    <div class="container">
+        <header>
+            <a href="../index.html" class="logo">Sidharth Sharma</a>
+            <nav>
+                <a href="../index.html">Home</a>
+                <a href="#">Blog</a>
+                <a href="#">Pictures</a>
+                <a href="../more_about_me.html">More About Me</a>
+                <button id="theme-toggle">🌙</button>
+            </nav>
+        </header>
 
-  <hr>
+        <main>
+            <article>
+                <h1 class="post-title-large">Hearts of Iron IV</h1>
+                <div class="post-meta">August 15, 2025  · 1 min read</div>
+                
+                <div class="tags">
+                    <span class="tag">Random</span>
+                </div>
 
-  <h3>I have started playing Hearts of Iron 4 and I am enjoying it</h3>
-  <p><b>Date:</b> August 15, 2025</p>
-  <p>I have started playing Hearts of Iron 4 by Paradox Interactive. It is a really good game. There is a lot of stuff, and the learning
+                <hr style="margin: 20px 0; border: 0; border-top: 1px solid var(--accent-color); opacity: 0.3;">
+
+                <p>I have started playing Hearts of Iron 4 by Paradox Interactive. It is a really good game. There is a lot of stuff, and the learning
     curve is very steep. I think I've logged something like 30 hours in the game so far and I am still losing most of the time. I enjoy playing
     as the USA. Hopefully I will get better. 
   </p>
-  
-  
-  <hr>
-  <br>
-  <p><i><font size="-1">Copyright 2025 - s-n-sharma</font></i></p>
+                
 
+                </article>
+        </main>
+
+        <footer>
+            &copy; 2025 Sidharth Sharma.
+        </footer>
+    </div>
+
+    <script src="../script.js"></script>
 </body>
 </html>
