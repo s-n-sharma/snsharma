@@ -1,44 +1,103 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>My Blog</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Blog</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body bgcolor="#E6E6FA" text="#000000">
+<body>
 
-  <center>
-    <h1>My Web Log</h1>
-    <p>~ A collection of my thoughts ~</p>
-    <b><a href="index.html">BACK TO HOME</a></b>
-  </center>
+    <div class="container">
+        <header>
+            <a href="index.html" class="logo">Sidharth Sharma</a>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="blog.html">Blog</a>
+                <a href="#">Pictures</a>
+                <a href="more_about_me.html">More About Me</a>
+                <button id="theme-toggle">🌙</button>
+            </nav>
+        </header>
 
-  <hr>
+        <main>
 
-  <h3><a href="blogs/first_post.html">My First Post and thoughts on my website</a></h3>
-  <h4><b>Date:</b> July 16, 2025</h4>
+          <div class="filter-container">
+    <button class="filter-btn active" onclick="filterPosts('all')">All</button>
+    <button class="filter-btn" onclick="filterPosts('cs')">CS</button>
+    <button class="filter-btn" onclick="filterPosts('random')">Random</button>
+    <button class="filter-btn" onclick="filterPosts('life')">Life</button>
+</div>
 
-  <hr>
+<div class="post-list">
 
-  <h3> <a href="blogs/freshman_classes_reviews.html">A review of classes I have taken this past year </a></h3>
-  <h4><b>Date:</b> July 17, 2025</h4>
+  <div class="year-group">
+                <div class="year-label">2025</div>
 
-  <hr>
-  
-  <h3><a href="blogs/fav_drink.html"> My favorite drink these past several months </a></h3>
-  <h4><b>Date:</b> July 26, 2025</h4>
+                <div class="post-item" data-tag="cs">
+                    <a href="blogs/adaboost.html" class="post-title">LaTeX and Adaboost</a>
+                    <div class="post-desc">A little test of LaTeX and a little bit about a cool algorithm</div>
+                    <div class="tags">
+                       <span class="tag">CS</span>
+                    </div>
+                    <div class="post-meta">November 17, 2025 · 5 min read</div>
+                </div>
 
-  <hr>
-  
-  <h3><a href="blogs/started_hoi4.html"> I have started playing Hearts of Iron 4 and I am enjoying it </a></h3>
-  <h4><b>Date:</b> August 15, 2025</h4>
+                <div class="post-item" data-tag="random">
+                    <a href="blogs/started_hoi4.html" class="post-title">Hearts of Iron IV</a>
+                    <div class="post-desc">I've started playing HOI IV, and it's amazing.</div>
+                    <div class="tags">
+                       <span class="tag">Random</span>
+                    </div>
+                    <div class="post-meta">August 15, 2025 · 1 min read</div>
+                </div>
 
-  <hr>
+                <div class="post-item" data-tag="random">
+                    <a href="blogs/fav_drink.html" class="post-title">A simple banana milkshake</a>
+                    <div class="post-desc">My favorite drink these past several months</div>
+                    <div class="tags">
+                       <span class="tag">Random</span>
+                    </div>
+                    <div class="post-meta">July 26, 2025 · 2 min read</div>
+                </div>
 
-  <h3><a href="blogs/adaboost.html"> A Test of LaTeX and a quick post about Adaboost </a></h3>
-  <h4><b>Date:</b> November 17, 2025</h4>
+                <div class="post-item" data-tag="life">
+                    <a href="blogs/freshman_classes_reviews.html" class="post-title">Reviews for my first-year courses</a>
+                    <div class="post-desc">What I liked and didn't like about the courses I took this year</div>
+                    <div class="tags">
+                       <span class="tag">Life</span>
+                    </div>
+                    <div class="post-meta">July 17, 2025 · 8 min read</div>
+                </div>
 
-  <hr>
-  <br>
-  <p><i><font size="-1">Copyright 2025 - s-n-sharma</font></i></p>
+                <div class="post-item" data-tag="random">
+                    <a href="blogs/first_post.html" class="post-title">My First Post and thoughts on my website</a>
+                    <div class="post-desc">Hello there</div>
+                    <div class="tags">
+                       <span class="tag">Random</span>
+                    </div>
+                    <div class="post-meta">July 16, 2025 · 1 min read</div>
+                </div>
 
+
+
+
+            </div>
+    
+   
+
+        </div>
+            
+
+        </main>
+
+        <footer>
+            &copy; 2025 Sidharth Sharma. 
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
+
+

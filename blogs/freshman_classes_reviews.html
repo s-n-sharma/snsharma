@@ -1,22 +1,50 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>My Blog</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reviews for my first-year courses</title>
+    
+    <link rel="stylesheet" href="../style.css">
+
+    <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+    </script>
+    
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
-<body bgcolor="#E6E6FA" text="#000000">
+<body>
 
-  <center>
-    <h1>My Web Log</h1>
-    <p>~ A collection of my thoughts ~</p>
-    <b><a href="../index.html">BACK TO HOME</a></b>
-    <b><a href = "../blog.html">BACK TO BLOG</a></b>
-  </center>
+    <div class="container">
+        <header>
+            <a href="../index.html" class="logo">Sidharth Sharma</a>
+            <nav>
+                <a href="../index.html">Home</a>
+                <a href="#">Blog</a>
+                <a href="#">Pictures</a>
+                <a href="../more_about_me.html">More About Me</a>
+                <button id="theme-toggle">🌙</button>
+            </nav>
+        </header>
 
-  <hr>
+        <main>
+            <article>
+                <h1 class="post-title-large">Reviews for my first-year courses</h1>
+                <div class="post-meta">July 17, 2025 · 8 min read</div>
+                
+                <div class="tags">
+                    <span class="tag">Life</span>
+                </div>
 
-  <h3> A review of classes I have taken this past year </h3>
-  <p><b> Date:</b> July 17, 2025 </p>
-  <p> In my freshman year at Cal, I have taken interesting classes. I've decided to write a bit on each class.  </p>
+                <hr style="margin: 20px 0; border: 0; border-top: 1px solid var(--accent-color); opacity: 0.3;">
+                
+                <p> In my freshman year at Cal, I have taken interesting classes. I've decided to write a bit on each class.  </p>
 	<ul>
 
     <li> <b>EECS 16A: Foundations of Signals, Dynamical Systems, and Information Processing</b><br>
@@ -149,10 +177,18 @@
 
 	</ul>
   
-  
-  <hr>
-  <br>
-  <p><i><font size="-1">Copyright 2025 - s-n-sharma</font></i></p>
+                
 
+        </article>
+        </main>
+
+        <footer>
+            &copy; 2025 Sidharth Sharma.
+        </footer>
+    </div>
+
+    <script src="../script.js"></script>
 </body>
 </html>
+
+
