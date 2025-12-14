@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+        }
+    </script>
 
     <div class="container">
         <header>
@@ -30,6 +36,8 @@
       <li> I enjoy video games such as Minecraft and Fortnite, as well as horror games (especially on Roblox), and more recently, Cities Skylines and Hearts of Iron 4. </li>   
 </ul>
             </section>
+
+            
         </main>
 
         <footer>

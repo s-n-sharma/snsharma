@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+        }
+    </script>
 
     <div class="container">
         <header>
@@ -16,7 +22,7 @@
                 <a href="blog.html">Blog</a>
                 <a href="#">Pictures</a>
                 <a href="more_about_me.html">More About Me</a>
-                <button id="theme-toggle">🌙</button>
+                <button id="theme-toggle"></button>
             </nav>
         </header>
 

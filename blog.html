@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+        }
+    </script>
 
     <div class="container">
         <header>
@@ -33,6 +39,24 @@
 
   <div class="year-group">
                 <div class="year-label">2025</div>
+
+                <div class="post-item" data-tag="life">
+                    <a href="blogs/thanks_newyear.html" class="post-title">What I'm Grateful for and What I Hope for</a>
+                    <div class="post-desc">Under Construction</div>
+                    <div class="tags">
+                       <span class="tag">Life</span>
+                    </div>
+                    <div class="post-meta">December 13, 2025 · ? min read</div>
+                </div>
+
+                <div class="post-item" data-tag="life">
+                    <a href="blogs/f25_class_review.html" class="post-title">Reviews for my Fall 2025 classes</a>
+                    <div class="post-desc">Under Construction</div>
+                    <div class="tags">
+                       <span class="tag">Life</span>
+                    </div>
+                    <div class="post-meta">December 13, 2025 · ? min read</div>
+                </div>
 
                 <div class="post-item" data-tag="cs">
                     <a href="blogs/adaboost.html" class="post-title">LaTeX and Adaboost</a>
