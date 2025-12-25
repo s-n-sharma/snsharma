@@ -81,3 +81,30 @@ window.addEventListener('load', () => {
         document.body.classList.add('preload-transitions');
     }, 100); 
 });
+
+const lightboxOverlay = document.createElement('div');
+lightboxOverlay.id = 'lightbox-overlay';
+lightboxOverlay.innerHTML = '<img id="lightbox-img" src="" alt="Zoomed Image">';
+document.body.appendChild(lightboxOverlay);
+
+const lightboxImg = document.getElementById('lightbox-img');
+
+const galleryImages = document.querySelectorAll('.wide-image-card img');
+
+galleryImages.forEach(img => {
+    img.addEventListener('click', e => {
+        lightboxImg.src = e.target.src;
+        
+        lightboxOverlay.style.display = 'flex';
+        setTimeout(() => {
+            lightboxOverlay.classList.add('active');
+        }, 10);
+    });
+});
+
+lightboxOverlay.addEventListener('click', () => {
+    lightboxOverlay.classList.remove('active');
+    setTimeout(() => {
+        lightboxOverlay.style.display = 'none';
+    }, 300); 
+});
