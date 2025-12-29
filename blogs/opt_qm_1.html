@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimization and Quantum Mechanics, Part I</title>
+    
+    <link rel="stylesheet" href="../style.css">
+
+    <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+    </script>
+    
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+        }
+    </script>
+
+    <div class="container">
+        <header>
+            <a href="../index.html" class="logo">Sidharth Sharma</a>
+            <nav>
+                <a href="../index.html">Home</a>
+                <a href="../blog.html">Blog</a>
+                <a href="#">Pictures</a>
+                <a href="../more_about_me.html">More About Me</a>
+                <button id="theme-toggle">🌙</button>
+            </nav>
+        </header>
+
+        <main>
+            <article>
+                <h1 class="post-title-large">Optimization and Quantum Mechanics, Part I</h1>
+                <div class="post-meta">December 26, 2025 · 10 min read</div>
+                
+                <div class="tags">
+                    <span class="tag">CS</span>
+                    <span class="tag">Physics</span>
+                </div>
+
+                <hr style="margin: 20px 0; border: 0; border-top: 1px solid var(--accent-color); opacity: 0.3;">
+
+                This post is the first in what I hope is a two-post or three-post sequence about framing things in quantum mechanics
+                through the window of optimization. These pieces were inspired by things I heard while sitting with my friend in Charman's OH for Physics 112, Statistical Mechanics, and some things I learned in CS 270 with Rao. I would
+                highly recommend both classes; I haven't actually taken Physics 112 yet, but from what my friend says, it seems amazing. From these discussions, I was inspired to write about this topic for my Physics 137B term paper, 
+                but I decided against it to be safe and switched to writing about the path-integral formulation last minute. This blog post comes from notes I wrote while working on the term paper.
+                
+
+                <h2>
+                    Introduction
+                </h2>
+                In physics, we create mathematical models for the universe. These models take the form of laws and equations, which are often some sort of differential or linear algebra equation: 
+                 \[ \begin{align}\frac{d\textbf{p}}{dt} &= - \nabla_r \, V(r) && \text{Newton's Second Law}  \\ i\hbar \, \partial_t \Psi &= \left ( -\frac{\hbar^2}{2m} \nabla^2 + V \right) \Psi && \text{Time-dependent Schrödinger Equation} \end{align}\]
+
+                 Obviously, not all theories are built with this machinery, but of the physics that I know, most are. These are often easier to work with, since they follow strict equations that determine the evolution of the system. But many theories are also built with some sort of optimization built-in. Light takes the path of least time, and particles follow the path of stationary action. Statistical mechanics can also be viewed as an optimization problem. How about quantum mechanics? Let's first start with the basics of the theory. 
+
+                 <h3>
+                    The Basic Premises of Quantum Mechanics
+                 </h3>
+
+                 In quantum mechanics, systems obey the following postulates:
+                 <ul>
+                    <li>The state of any quantum system is completely described by the wavefunction \(\ket{\Psi}\); it contains all possible information about the system. Here \(\ket{\Psi}\) resides in the Hilbert space (an infinite-dimensional vector space). </li>
+                    <li> All measurable, physical quantities, such as position, momentum, and energy, correspond to specific linear and Hermitian operators that act on the wavefunction. </li>
+                    <li>The only outcomes of a measurement are the measurement's corresponding operator's eigenvalues, with the probability of an outcome being an eigenvalue equal to the projection of the wavefunction onto the eigenstate corresponding to that eigenvalue. </li> 
+                    <li> Upon measurement, the wavefunction instantly collapses into the eigenstate corresponding to the measured eigenvalue. </li>
+                    <li>If we define the <i>Hamiltonian</i> operator \(\hat{H}\) to be \[ \hat{H} = -\frac{\hbar^2}{2m} \nabla^2 + \hat{V},\] where \(\hat{V}\) is the operator associated with a potential \(V\), the time-evolution of the wavefunction, and hence the system, satisfies \[ i\hbar \, \partial_t \ket{\Psi} = \hat{H} \ket{\Psi},\] the Time-dependent Schrödinger Equation (TDSE). If we separate the equation into a temporal one and a spatial one, we obtain the Time-independent Schrödinger Equation (TISE): \[ \hat{H} \ket{\psi} = E \ket{\psi},\] where \(E\) is the energy of the eigenstate, and \(\ket{\Psi } = e^{-iEt/\hbar} \ket{\psi}\).</li> 
+                 </ul>
+                 This is a very very brief overview of the basic premises of quantum mechanics; if one wishes to learn more, Griffiths', Shankar's, or Sakurai's texts are excellent resources. Also, for sake of convience, I will drop the hat from the operators; for example, $\hat{H}$ will be written as $H$.
+                 <h2>The Static Picture: Energy as a Cost</h2>
+                 We claim that $\ket{\psi} \in \mathcal{C}(\phi)$, where $\phi$ is the solution to the following optimization problem \[ \phi = \text{argmax}_{\phi} \, \, \, \text{tr}(\phi^\dagger H \phi ) \, \, \text{subject to } \, \phi^\dagger \phi = I.    \] To prove this, we simply setup the optimization Lagrangian. We have \[ \mathcal{L} = tr(\phi^\dagger H \phi) - tr(\Lambda^T (\phi^\dagger \phi - I)).\] The associated KKT conditions are \[ \nabla_{\phi} \mathcal{L} = 2 H \phi - 2 \phi \Lambda = 0,\] or $H\phi = \phi \Lambda$, as desired. Hence, this optimization problem is equivalent to the TISE. From this, we can notice that $\Lambda$, the dual variable that corresponds to the normalization constraint of the wavefunction, is energy. Energy is the cost the universe pays for the uinitarity of time-evolution. We can also rewrite our Lagrangian by noting the cyclic property of the trace; we have \[\begin{align} \mathcal{L} &= tr(\phi^\dagger H \phi) - tr(\Lambda^T (\phi^\dagger \phi - I)) \\ &= tr(H \phi \phi^\dagger) - tr(\Lambda^T (\phi^\dagger \phi - I))  \end{align}.\] The first term may feel familiar to physics students, as \[ \phi \phi^\dagger = \sum_n \ket{\psi_n} \bra{\psi_n} = \sum_n \rho_n,\] where $\rho_n$ is called the <i>density matrix</i>. Hence, \[\mathcal{L} = \sum_n tr(H \rho_n ) - tr(\Lambda^T (\phi^\dagger \phi - I)).\] 
+                 <h2>The Dynamic Picture: Encoding Evolution </h2>
+                 More such insights open up if we can encode the time-evolution of the wavefunction straight into the optimization problem. This leads us to the following: we claim that $\Psi \in \mathcal{C}(\Phi)$, where $\Phi$ evolves according to the following optimization problem: \[ \begin{align} \max_{\gamma} \left ( \min_{\Phi} tr(\Phi^\dagger H \Phi ) - tr(F(\Phi^\dagger R \Phi - I)) \right) & \text{ subject to constraint } F - \hbar I = 0 \end{align},  \] where $R$ is the operator associated with $i \partial_t$. The associated optimization Lagrangian is \[ \mathcal{L} = \min_{\Phi} \left [ tr(\Phi^\dagger H \Phi) - tr(F(\Phi^\dagger R \Phi - I ))) \right]  + tr(\Omega (F - \hbar I)).\] To show that this is equivalent to the TDSE, we invoke the KKT conditions. If we define \[ g(F) = \min_{\Phi} \left[ tr(\Phi^\dagger H \Phi) - tr(F(\Phi^\dagger R \Phi - I))\right],\] our conditions are \[\begin{align} \nabla_{\Phi} \mathcal{L} &= \nabla_{\Phi} g = 2 H \Phi - 2 FR \Phi = 0. \\ \nabla_F \mathcal{L} &= \nabla_F g + \Omega^\dagger = \Omega - (\Phi^\dagger R \Phi - I)^\dagger = 0 \\ \nabla_\Omega \mathcal{L} &= (F - \hbar I)^{\dagger} = 0\end{align}\] Plugging the third condition into the first condition yields \[H \Phi = FR \Phi = \hbar I R \Phi = i\hbar \partial_t \Phi,\] which is the TDSE. 
+
+                 <h3>From the TD Lagrangian to the TI Lagrangian</h3>
+
+                 <div class="lyrics-card">
+                    <blockquote>
+                        <p>
+                            M: Well, I'm not hiding in there if that's your brilliant plan. 
+                        </p>
+                        <p>
+                            Bond: We're changing vehicles. Trouble with company cars is they have trackers. 
+                        </p>
+                        <p>
+                            M: Oh, and I suppose that's [Bond's Aston Martin DB5] completely inconspicuous. 
+                        </p>
+                        <p class="lyrics-emphasis">
+                            <i> Skyfall</i>, 2012
+                        </p>
+                    </blockquote>
+                </div>
+
+                The TD Lagrangian (TDL) is nice and from it, we can glean some neat geometric insights, but it's unweildy compared to the TI Lagrangian (TIL). So let's swap Lagrangians by proving the TIL from the TDL. 
+
+                By strong duality, at optimality, we have \[ \mathcal{L}^* = \min_{\Phi} \left [ tr(\Phi^\dagger H \Phi) - tr(F(\Phi^\dagger R \Phi - I )) \right] \equiv \mathcal{L}_{base}^*,\] where we recognize the right side to be the optimal value for an inner, base Lagrangian. Again, by strong duality, at optimality for the base Lagrangian, $\mathcal{L}^* = \mathcal{L}_{base}^* = tr(\Phi^{*\dagger} H \Phi^{*})$, with \[ \mathcal{L}_{base} = tr(\Phi^\dagger H \Phi) - tr(F(\Phi^\dagger R \Phi - I )).\]
+
+                This inspires the following ansatze:
+                
+                <ol>
+                    <li>
+                        \( H = H_s \otimes I_t\) ($H$ is time-independent)
+                    </li>
+                    <li>
+                        $R = I_s \otimes R_t$ ($R$ is spatial-independent)
+                    </li>
+                    <li>
+                        We can write $\Phi$ as the sum of tensor products of rank-1 tensors: \[ \Phi = \sum_n \zeta_n \otimes \tau_n. \]
+                    </li>
+                </ol>
+
+                From these, we can rewrite our base Lagrangian: 
+                \[ \begin{align} \mathcal{L}_{base} &= \sum_n tr((\zeta_n \otimes \tau_n)^\dagger (H_s \otimes I_t)(\zeta_n \otimes \tau_n)) - \hbar tr((\zeta_n \otimes \tau_n)^\dagger (I_s \otimes R_t) (\zeta_n \otimes \tau_n) - I ) \\ &= \sum_n tr(\zeta_n^\dagger H_s \zeta_n) tr(\tau_n^\dagger \tau_n) - \hbar tr(\zeta_n^\dagger \zeta_n) tr(\tau_n^\dagger R_t \tau_n) - \hbar tr(I)  \end{align}\] 
+                Finding the stationary points of this Lagrangian, we have \[ \begin{align} \nabla_{\zeta_n} \mathcal{L}_{base} &= 2 H_s \zeta_n tr(\tau_n^\dagger \tau_n) - 2\hbar \zeta_n tr(\tau_n^\dagger R_t \tau_n) = 0  \\ &\Rightarrow H_s \zeta_n = \hbar \frac{tr(\tau_n^\dagger R_t \tau_n )}{tr(\tau_n^\dagger \tau_n )} \zeta_n \\ \\\nabla_{\tau_n} \mathcal{L}_{base} &= 2 tr(\zeta_n^\dagger H_s \zeta_n) \tau_n - 2\hbar R_t \tau_n tr(\zeta_n^\dagger \zeta_n) = 0 \\ &\Rightarrow R_t \tau_n = \frac{1}{\hbar} \frac{tr(\zeta_n^\dagger H_s \zeta_n)}{tr(\zeta_n^\dagger \zeta_n)} \tau_n \end{align} \]
+
+                If we now substitute $R_t \tau_n$ into the first eigenvalue equation, we have \[ \begin{align} H_s \zeta_n &= \frac{tr(\zeta_n^\dagger H_s \zeta_n)}{tr(\zeta_n^\dagger \zeta_n)} \zeta_n \\ &= \lambda \zeta_n \end{align}  \]
+                If we combine these equations into one eigenvalue problem, we get $H_s \phi = \phi \Lambda,$ which is just the TISE, from which we can obtain the TIL. 
+
+                <h3>Optimization and the Principle of Stationary Action</h3>
+
+                <div class="lyrics-card">
+                    <blockquote>
+                        <p>
+                           Gordon: What about the Riddler? He’s gonna kill again.
+                        </p>
+                        <p>
+                            Batman: It’s all connected. Like it or not, it’s his game now. We wanna find Riddler, we gotta find that rat.
+                        </p>
+                        <p class="lyrics-emphasis">
+                            <i> The Batman</i>, 2022
+                        </p>
+                    </blockquote>
+                </div>
+
+                So far, the Lagrangian has been a mathematical tool. But does it have any physical significance? The structure of the base Lagrangian, which is the objective function in the TDL, rewritten here, warrants a closer examination. \[ \mathcal{L}_{base} = tr(\Phi^\dagger H \Phi) - tr(F(\Phi^\dagger R \Phi - I )).\]
+
+                Ignoring the last constant term, at feasibility, \[ \mathcal{L}_{base} = tr(\Phi^\dagger H \Phi) - i\hbar \,  tr(\Phi^\dagger \partial_t \Phi).\]
+                But this is really just the Dirac-Frenkel Action: \[ \mathcal{S} = \int dt \, \mathcal{L}_{DF} = \int dt \, \bra{\Psi} i \hbar \, \partial_t - H \ket{\Psi},\]
+                
+                where the trace in $\mathcal{L}_{base}$ contains an implicit integral (specifically the trace over the temporal space). This is an interesting connection between a technique from mathematics and one from physics. In the optimization view, this structure comes sort of naturally from the optimization problem itself; we then want to find the extrema the optimization Lagrangian, which is exactly the Principal of Stationary Action. There's probably a deeper reason on why expressing the TDSE as an optimization problem naturally leads to the Principal of Stationary Action; maybe I'll write about it in another blog post.
+
+                <h2>Killing Particles: Decreasing Probability</h2>
+
+                <div class="lyrics-card">
+                    <blockquote>
+                        <p>
+                            Maverick: Put that in your Pentagon budget! 
+                        </p>
+                        <p>
+                            Hondo: Alright, Mav, that’s it. Back it off. We got what we came for. 
+                        </p>
+                        <p>
+                            Maverick: Just a little more. Just a little. Come on... come on...
+                        </p>
+                        <p class="lyrics-emphasis">
+                            <i> Top Gun: Maverick</i>, 2022
+                        </p>
+                    </blockquote>
+                </div>
+                If we relax the constraint of unitary evolution, that is $\phi^\dagger \phi = I - \Delta(t) \equiv N(t)$ in the TIL, we can discover an equation that strikingly resembles the First Law of Thermodynamics. One instance this could happen is a system with a decaying particle. We first must use a standard lemma, one that may be familiar to those who have studied Lagrangian optimization.
+                <br>
+                <br>
+                <b>Lemma. </b> For a constraint $\mathcal{C}$ with an associated constant $c$ for an optimization problem with reward $Q$, at optimality $x^*$,  \[ \frac{d Q}{d c} = \lambda^*,\]
+                where $\lambda$ is the dual variable asociated with constraint $c$. 
+                <br>
+                <br>
+                <b>Proof. </b> By strong duality, at optimality, $Q(x^*) = \mathcal{L}(x^*)$. Hence, \[ \begin{align} \frac{d Q}{d c} = \frac{d\mathcal{L}}{dc} &= \frac{\partial \mathcal{L}}{\partial x^*} \frac{dx^*}{dc} + \frac{\partial \mathcal{L}}{\partial y^*} \frac{dy^*}{dc} + \frac{\partial \mathcal{L}}{\partial c}  \\ &= \frac{\partial \mathcal{L}}{\partial c} \\ &= \lambda^* \end{align} \] 
+                where we note that that optimality, we have stationarity, and we recall the structure of the Lagrangian for the last step. 
+
+                <br>
+                <br>
+
+                In our current TIL setup, with the perturbation, to first-order, \[ \begin{align} Q &= Q^* - \frac{dQ}{dN} \Delta(t) \\ &= Q^* - tr(\Lambda^* \Delta(t) ) \end{align} \]
+                If we take the derivative of this with respect to time, recalling $Q$ for the Lagrangian written in terms of the density matrices, and we assume that $H$ is time-independent, we get \[ \begin{align}\frac{dQ}{dt} &= - tr\left(\Lambda^* \frac{d\Delta}{dt}\right) \\ &= \sum_n tr\left(H \frac{d\rho_n}{dt}\right) \end{align} \]
+                Hence, \[ \sum_n tr(H \dot{\rho}_n) + tr(\Lambda^* \dot{\Delta}) = 0. \]
+
+                We can also note that $tr(\rho_n) = 1 - \Delta^{(n)}(t)$, where $\Delta^{(n)}(t)$ is the $n$th diagonal entry of $\Delta$, so that \[ \frac{d(tr(\rho_n))}{dt} = tr(\dot{\rho}_n) =- \frac{d\Delta^{(n)}}{dt}.\] Summing over $n$, we have \[ \sum_n tr(\dot{\rho}_n) + tr(\dot{\Delta}) = 0. \label{asdf}\]
+                
+                There is a remarkable similarity between the equations; both are of the form \[ \sum_n tr(O \dot{\rho}_n) + tr(\lambda_O \dot{\Delta}) = 0,\]
+                
+                where $O$ is some operator, and $\lambda_O$ are the equilibrium eigenvalues of $O$. This actually holds for all operators that commute with $H$, and hence all conserved quantities: \[\begin{align} O\ket{\Psi_n} = \lambda_O \ket{\Psi_n} 
+                &\Rightarrow O \rho_n = \lambda_O \rho_n \\ &\Rightarrow O\dot{\rho}_n = \lambda_O \dot{\rho}_n \\ &\Rightarrow tr(O \dot{\rho}_n) = \lambda_O \, tr(\dot{\rho}_n) \\ &\Rightarrow tr(O \dot{\rho}_n) = -\lambda_O (\dot{\Delta}^{(n)});  \end{align}\]
+                summing over $n$ yields our identity. We can also see this geometrically from our optimization: the main lemma that we use is invariant (up to a constant scaling factor) if we swap the operator from $H$ to $O$ on the set of eigenstates. Note that these equations are very similar to the first law of thermodynamics. Hence, for commuting operators, and hence conserved quantities, similar "first law" equations exist.
+
+                <h2>Closing Remarks</h2>
+
+                In this post, I ranted about some thoughts about encoding the TDSE as an optimization I had for my term paper. There are likely tons of mistakes and other problems in what I've written here. I thought the coolest part was the suprising connection between the optimization Lagrangian and the Principle of Stationary Action. If I do write another blog post on this topic (hopefully), I think it will be more about that connection, with hopefully other geometric insights. 
+                
+                <br>
+                <br>
+                Sid
+
+                <!-- <h2>Berry's Phase: The Cost of Time  </h2>
+
+                <div class="lyrics-card">
+                    <blockquote>
+                        <p>
+                            CASE: Endurance rotation is 67, 68 RPM.
+                        </p>
+                        <p>
+                            Cooper: Analyze the Endurance's spin
+                        </p>
+                        <p>
+                            CASE: Cooper, what are you doing?
+                        </p>
+                        <p>
+                            Cooper: Docking.
+                        </p>
+                        <p class="lyrics-emphasis">
+                            <i> Interstellar</i>, 2014
+                        </p>
+                    </blockquote>
+                </div>
+
+                The second stationarity condition of the TDL is \[ \begin{align} \Omega = \Phi^\dagger R \Phi - I =  i \Phi^\dagger \partial_t \Phi - I. \end{align} \]
+                Hence, \[  \] -->
+
+
+
+
+
+                </article>
+
+        </main>
+
+        <footer>
+            &copy; 2025 Sidharth Sharma.
+        </footer>
+    </div>
+
+    <script src="../script.js"></script>
+</body>
+</html>
