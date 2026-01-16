@@ -489,3 +489,48 @@ body.preload-transitions {
     font-style: normal;
     font-weight: 600;
 }
+
+
+/* --- Note Card Styling --- */
+.note-card {
+    background-color: #f9fafb; /* Very light gray */
+    border: 1px solid #e5e7eb; /* Subtle border */
+    border-left: 4px solid var(--hover-color); /* Blue accent on the left */
+    border-radius: 8px;
+    margin: 30px 0;
+    overflow: hidden; /* Keeps the header inside the rounded corners */
+}
+
+/* Dark mode adjustment */
+[data-theme="dark"] .note-card {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-color: #374151;
+}
+
+/* The "Header" part (e.g., "Note: ...") */
+.note-header {
+    background-color: rgba(37, 99, 235, 0.1); /* Very faint blue background */
+    padding: 10px 20px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: var(--hover-color); /* Uses your blue accent color */
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+/* Dark mode header adjustment */
+[data-theme="dark"] .note-header {
+    background-color: rgba(96, 165, 250, 0.15); /* Slightly clearer in dark mode */
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+/* The actual content */
+.note-content {
+    padding: 20px;
+    font-size: 0.95rem;
+    color: var(--text-color);
+}
+
+/* Fix spacing if you put math block equations inside the note */
+.note-content p:last-child {
+    margin-bottom: 0;
+}
