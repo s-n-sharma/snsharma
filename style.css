@@ -534,3 +534,168 @@ body.preload-transitions {
 .note-content p:last-child {
     margin-bottom: 0;
 }
+
+/* --- Updates to existing .tag class --- */
+/* Ensure flexbox is used to align the text and the new icon */
+.tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px; /* Space between icon and text */
+    /* Keep your existing styles below: */
+    background-color: #e5e7eb; 
+    color: #374151;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    /* meaningful transition for hover effects */
+    transition: all 0.2s ease;
+    text-decoration: none !important; /* KEY: Removes the ugly link underline */
+}
+
+/* --- New Styles for the Link Tag --- */
+/* Specific styling for the clickable GitHub link */
+a.tag.git-link {
+    cursor: pointer;
+    border: 1px solid transparent; /* Prevents layout shift on hover if you add border later */
+}
+
+/* Hover State: Uses your site's --hover-color */
+a.tag.git-link:hover {
+    background-color: var(--hover-color);
+    color: #ffffff; /* White text looks best on your blue hover color */
+    transform: translateY(-1px); /* Subtle lift effect */
+    text-decoration: none !important;
+}
+
+/* Dark Mode Adjustments */
+[data-theme="dark"] .tag {
+    background-color: #374151;
+    color: #e5e7eb;
+}
+
+/* Ensure the icon scales properly */
+.tag svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* 1. Style the Card Container */
+.code-callout {
+    background-color: rgba(0,0,0,0.03); 
+    border-left: 3px solid var(--accent-color);
+    padding: 12px 20px;
+    margin: 20px 0 35px 0; /* Spacing: 20px top, 35px bottom */
+    font-size: 0.95rem;
+    color: var(--text-color);
+    border-radius: 0 4px 4px 0; /* Slight rounding on right side only looks nice with left border */
+    font-family: var(--font-main);
+}
+
+/* 2. Target the Link inside the card specifically */
+.code-callout a {
+    color: var(--link-color); /* Matches your site theme */
+    font-weight: 600;         /* Bold looks cleaner than underlined */
+    text-decoration: none !important; /* KILL the default underline */
+    border-bottom: 1px solid transparent; /* Reserve space for hover line */
+    transition: all 0.2s ease;
+    padding-bottom: 1px;
+}
+
+/* 3. The Hover Effect */
+.code-callout a:hover {
+    color: var(--hover-color);
+    border-bottom: 1px solid var(--hover-color); /* A thin, colored line only on hover */
+}
+
+/* Optional: Dark mode adjustment for the background */
+[data-theme="dark"] .code-callout {
+    background-color: rgba(255,255,255,0.03);
+}
+
+/* The link container */
+.title-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle; /* Keeps it aligned with text baseline */
+    margin-left: 12px;      /* Space between text and icon */
+    color: var(--text-color); /* Default matches title */
+    opacity: 0.4;           /* Subtle by default so it doesn't steal focus */
+    transition: all 0.2s ease;
+    text-decoration: none !important; /* No underline */
+    border: none !important;
+}
+
+/* The SVG itself */
+.title-icon svg {
+    width: 0.75em;  /* Scales relative to the H1 font size */
+    height: 0.75em;
+}
+
+/* Hover Effects */
+.title-icon:hover {
+    color: var(--hover-color); /* Turns blue */
+    opacity: 1;                /* Becomes fully visible */
+    transform: translateY(-2px); /* Slight lift */
+}
+
+/* Dark mode safety (inherits correctly, but just in case) */
+[data-theme="dark"] .title-icon {
+    color: var(--text-color);
+}
+
+/* Utility class for links without default underlines */
+.clean-link {
+    color: var(--link-color);     /* Standard link color */
+    text-decoration: none;        /* Remove default underline */
+    border-bottom: none;          /* Remove any border underlines */
+    transition: color 0.2s ease;  /* Smooth color transition */
+}
+
+/* Hover State: The underline appears */
+.clean-link:hover {
+    color: var(--hover-color);    /* Change to blue/accent */
+    text-decoration: underline;   /* Underline appears now */
+    text-underline-offset: 3px;   /* Pushes underline slightly down for readability */
+}
+
+/* --- Feature/Content Image (Graphs, Screenshots) --- */
+.content-image {
+    width: 100%;              /* Fits the width of the text column */
+    height: auto;             /* KEY: Keeps original aspect ratio (won't look squashed) */
+    display: block;
+    margin: 30px 0 10px 0;    /* Spacing above and below */
+    border-radius: 12px;      /* Matches your other images */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    
+    /* The Interactive Stuff */
+    cursor: zoom-in;          /* Tells user "you can click this" */
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+/* Hover Effect (Matches your gallery style) */
+.content-image:hover {
+    transform: scale(1.02);       /* Subtle zoom */
+    filter: brightness(1.03);     /* Slight pop */
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15); /* deeper shadow on hover */
+}
+
+/* Caption styling (optional but recommended for graphs) */
+.image-caption {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--accent-color);
+    margin-bottom: 30px;
+    font-style: italic;
+}
+
+/* Dark mode adjustment */
+[data-theme="dark"] .content-image {
+    opacity: 0.9; /* Slightly dim images in dark mode so they aren't blinding */
+}
+[data-theme="dark"] .content-image:hover {
+    opacity: 1;
+}
