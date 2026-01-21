@@ -51,7 +51,171 @@
 
                 <hr style="margin: 20px 0; border: 0; border-top: 1px solid var(--accent-color); opacity: 0.3;">
 
-                Mirror descent, zero-sum games, and QM? 
+                This post is the second in what might be three-post sequence about framing things in quantum mechanics
+                through ideas in computer science and mathematics. These were inspired by things I heard while sitting with my friend in Charman's OH for Physics 112, Statistical Mechanics, and some things I learned in CS 270 with Rao. I would
+                highly recommend both classes; I haven't actually taken Physics 112 yet, but from what my friend says, it seems amazing. This blog post is independent of the first blog post. I would say that readers
+                should be comfortable with 
+                <ul>
+                    <li>Some basic Quantum Mechanics,</li>
+                    <li>Some background in game theory and optimization,</li>
+                    <li>Comfort with linear algebra and calculus,</li>
+                </ul>
+                <!-- I think that this blog post will be far more broader and ambitious in what it attemps to do. I hope to somehow
+                argue that quantum mechanics and things in physics such as conservation laws and Nother's theorem are natural instances
+                and implications of game theory and optimization. If I succeed in this, I think this could be my magnum opus blog post throughout my entire undergraduate study.  -->
+                I think that this blog post will be broader and more ambitious than the prior one in the series. The main purpose of this series is to improve my understanding of quantum mechanics and algorithms, and to 
+                try to find the underlying beauty in the world.
+                
+                <h2>A Brief Review of Mirror Descent</h2>
+                We begin with definitions of Bregman divergence and distance generating functions. 
+                <br>
+                <div class="note-card">
+                    <div class="note-header">Definition: Distance Generating Function (DGF)</div>
+                        <div class="note-content">
+                             A <b>distance generating function</b> $\phi$ on a convex set $X$ is strictly convex on $X$ and is continuously differentiable on $int(X)$.
+                        </div>
+                </div>
+                <div class="note-card">
+                    <div class="note-header">Definition: Bregman Divergence</div>
+                        <div class="note-content">
+                             The <b>Bregman Divergence</b> is given by $D_{\phi}(x, y) = \phi(x) - \phi(y) - \langle \nabla \phi(y), x - y\rangle$ for $x \in X$ and $y \in int(X)$, where $\phi$ is a distance generating function on $X$.  
+                        </div>
+                </div>
+                Mirror descent is a generalization of gradient descent to work on non-Euclidean spaces; each update is given by \[ x_{t + 1} = \text{argmin}_x \left[ \lambda \langle \nabla f(x_t), x \rangle + D_\phi(x, x_t)   \right].\]
+                The solution to this problem is \[ x_{t + 1} = (\nabla \phi)^{-1} [\nabla \phi (x_t) - \lambda \nabla f(x_t)]; \]
+                essentially, we make our updates in the dual space and translate it back into the primal using our DGF $\phi$. We can also write this as \[ \nabla\phi(x_{t + 1}) = \nabla \phi(x_t) - \lambda \nabla f(x_t).\]
+                <h2>MD might not be enough to describe QM</h2>
+                Let's examine time-evolution in quantum mechanics: \[\begin{align} i\hbar  \partial_t \rho = [H, \rho ] \Rightarrow \partial_t \rho = -(i/\hbar) [H, \rho]\end{align}.\]
+                To first order, a time $\delta t$ later, \[\begin{align} \rho' = \rho + \delta t \cdot \partial_t \rho = \rho  - \frac{i \delta t}{\hbar} [H, \rho]. \end{align}\] Applying $\nabla\phi$ to both sides, we have \[ \nabla \phi (\rho') = \nabla \phi\left(\rho - \frac{i \delta t}{\hbar} [H, \rho]\right).\]
+                Again, to first order in $\delta t$, we have \[ \nabla \phi(\rho') = \nabla\phi(\rho) - \frac{i \delta t}{\hbar} \nabla^2 \phi(\rho) \{ [H, \rho]\},\]
+                where $\nabla^2 \phi$ is the Hessian and is hence a superoperator. Comparing this to the MD update, we must have \[ \lambda \nabla f(\rho) = \frac{i \delta t}{\hbar}  \nabla^2 \phi(\rho) \{ [H, \rho]\}. \] 
+                Note that this is impossible, or at least very hard to do. <i>Unitary</i> time-evolution enforces that $\rho$ moves along a constant contour of $H$; hence the update, or the RHS of our equation, is more of a rotation step, and from QM, we know that it is possible to return to a prior state. However, if we keep following the MD update step, we cannot return to a prior state unless we are already at the minimum and all updates are nonexistent. 
+                This is a fundamental shortcoming of using MD to describe all of QM; as the updates are in fundamentally different
+                directions, we cannot possibly capture <i>unitary</i> evolution. 
+                
+                <div class="note-card">
+                    <div class="note-header">Note: Alternative Derivation to MD Update Condition</div>
+                        <div class="note-content">
+                            We can also derive the MD and QM update condition another way; if we say that the MD updates are 
+                            dependent on $\delta t$ (ignoring higher-order terms, and noting that we cannot have a constant term): \[ \begin{align} \nabla \phi(\rho(t + \delta t)) = \nabla \phi(\rho) - \lambda \delta t \nabla f(\rho) \end{align},\]
+                            and we take the limit of $\delta t \rightarrow 0$, then we can rewrite the update equation as \[ \frac{d (\nabla \phi(\rho))}{d t} = \nabla^2 \phi (\rho) \{ \dot{\rho}\} =- \lambda \nabla f(\rho).\]
+                            Using the equation for time-evolution yields the same equation. Note that we included the $\delta t$ implicity in $\lambda$ before.
+                        </div>
+                </div>
+
+                MD, however, is probably better suited to descibe non-unitary evolution in QM; to force it to describe all of QM, we'd probably have to include a rotation term in our Bregman divergence: \[D_{\phi}^\Omega(x, y) = D_{\phi}(x, y) + \langle \Omega y, x \rangle,\] where $\Omega$ is a rotation matrix so that our update step can capture the rotation inherent in QM. 
+                If we make the learning rate $\lambda$ complex (which is sort of equivalent to making the time $\delta t$ complex), one could frame the evolution of a pure state as a continuous-time MD update ($\phi(x) = (1/2)||x||_2^2$, $f(x) = (1/2) \langle x, Hx\rangle$, $\lambda = i/\hbar$, making this just complex GD); this however, is not the most general form of quantum mechanics. The constriant on the evolution 
+                of pure states is simple; density matrices, on the other hand, are required to be Hermitian. With a real learning rate, MD's update preserves the Hermitian structure, while a complex learning rate would destroy that. 
+
+                <div class="lyrics-card">
+                    <blockquote>
+                        You're spinnin' me around <br>
+                        My feet are off the ground<br>
+                        I don't know where I stand<br>
+                        <p class="lyrics-emphasis">
+                            <i> "Sunday" by The Cranberries, 1993 </i>
+                        </p>
+                    </blockquote>
+                </div>
+                <h2>God's playing dice: QM as a game</h2>
+                So where else do you have rotation? One place is in games. Let's try to get some intuition as to how this can occur. Suppose we have two players, $x$ and $y$, with a payoff function $L(x, y) = xy$, with $x$ minimizing and $y$ maximizing. $x$ updates $x \rightarrow x - \lambda \nabla_x L$, while $y$ updates $y \rightarrow y + \lambda \nabla_y L$. Making this a continuous-time process and evaluating the gradients, we have \[\begin{align} \dot{x} &= - \lambda y \\ \dot{y} &= \lambda x   \end{align}\]
+                The solution to this, $\textbf{r} = [x, y]^T$, traces a circle in the $xy$ plane. Wow!
+                Now, framing QM, I thought, should be similar, just with different updates.
+                
+                <h3>Relativistic QM: Pigheadedness</h3>
+
+                There are some hints that suggest QM can be framed as a game. Initially, I had thought that each point in space was a player, and $\ket{\Psi}$ 
+                was the strategy vector of all players. But $\ket{\Psi}$ has to satisfy some constraints,
+                and it's hard to encode that into a game. 
+
+                <br>
+                <br>
+
+                If all of $\ket{\Psi}$ is a strategy for a player, then we come to the question: who is the second player? In order
+                to have that rotation, we <i> need </i> a second player. So, let's call the first player's strategy
+                $\ket{\psi_1}$ and the second player's strategy $\ket{\psi_2}$. We'll say, without loss of generality, that $\psi_1$ aims to minimize ($\psi_2$ aims to maximize) a payoff function $L$; in the spirit of QM, this payoff function will be some sort of complex map ($L : L^2(\mathbb{R}) \times L^2(\mathbb{R}) \rightarrow \mathbb{C}$. 
+                
+                
+                
+                Hence, the update rules are \[ \begin{align}\partial_t \psi_1 &= - \nabla_{\psi_1^{\dagger}} L \\ \partial_t \psi_2 &= + \nabla_{\psi_2^{\dagger}} L \end{align}\] We then make the following ansatze: 
+                <ol>
+                    <li>Furthermore, $L$ can be written as \[ L = \sum_{i, j} \alpha_{ij} \psi_i^{\dagger} \partial_x \psi_j +  \sum_{ij} \beta_{ij} \psi_i^{\dagger} \psi_j \]</li>
+                    <li>In the limit of $m >> 0$, $\psi_1$ becomes the wavefunction in the free particle TDSE: $\partial_t \psi_1 = (i\hbar/2m) \partial_x^2 \psi_1$. </li>
+                </ol>
+
+
+                
+                If we now use our update rules, we have \begin{align} \partial_t \psi_1 &= - \sum_{j} \alpha_{1j} \partial_x \psi_j - \sum_{j} \beta_{1j} \psi_j \\ &= - \alpha_{11}\partial_x \psi_1 - \alpha_{12} \partial_x \psi_2 - \beta_{11} \psi_1 - \beta_{12} \psi_2,\end{align}
+                and \begin{align} \partial_t \psi_2 &= \sum_{j} \alpha_{2j} \partial_x \psi_j + \sum_{j} \beta_{2j} \psi_j \\ &= \alpha_{22} \partial_x \psi_2 + \alpha_{21} \partial_x \psi_1 + \beta_{22} \psi_2 + \beta_{21} \psi_1.\end{align}
+
+    
+                <!-- <ol>
+                    <li>Furthmore, $L$ can be written as \[ L = \alpha (\psi_1^{\dagger} \partial_x \psi_2 -  \psi_2^{\dagger} \partial_x \psi_1) + \beta (\psi_1^{\dagger} \psi_1 +  \psi_2^{\dagger} \psi_2). \]</li>
+                    <li>In the limit of $m >> 0$, $\psi_1$ becomes the wavefunction in the free particle TDSE: $\partial_t \psi_1 = (i\hbar/2m) \partial_x^2 \psi_1$. </li>
+                </ol>
+                These are pretty stringent, but they are needed to reconcile with nonrelativistic theory; specifically, we want to treat space and time on equal footing, incorporate both strategies in our update, in a simple expression. A more rigorous derivation would probably include more terms and show that they must vanish. If we now write out our update equations, we have 
+                \begin{align} \partial_t \psi_1 &= - \alpha \partial_x \psi_2 - \beta \psi_1 \\ \partial_t \psi_2 &= -\alpha \partial_x \psi_1 + \beta \psi_2.   \end{align}
+                Differentiating the second equation, solving for $\partial_x \psi_2$, and plugging that into the first yields \begin{align} \partial_t \psi_1 = -\frac{\alpha^2}{\beta} \partial_x^2 \psi_1 - \frac{\alpha}{\beta} \partial_{tx} \psi_2 - \beta \psi_1 .\end{align}
+                In the relativistic limit, $\partial_{tx} \psi_2 \approx 0$, and the $\beta \psi_1$ term only contributes a phase shift, so $\partial_t \psi_1 = -(\alpha^2/\beta) \partial_x^2 \psi_1$. If we work in natural units, and set $\alpha = 1$, then    -->
+
+                                Differentiating the second update equation with respect to time and substituting that into the first update equation and enforcing the non-relativistic limit yields the Dirac Equation in 1+1 (1 spatial dimension + 1 time). 
+                
+                <div class="note-card">
+                    <div class="note-header">The Dirac Equation in 1+1</div>
+                        <div class="note-content">
+                           In 1+1, the Dirac Equation can be written as the system of equations:
+                           \[ \begin{align} \partial_t \psi_1 &= - \partial_x \psi_2  -im \psi_1 \\ \partial_t \psi_2 &= - \partial_x \psi_1 + im \psi_2 \end{align} \]
+                           where $\psi_1$ and $\psi_2$ are the components of the spinor $\psi$. If we define $\psi_1 = e^{-imt} \phi_1$ and $\psi_2 = e^{imt} \phi_2$, the equations become \[\begin{align} \partial_t \phi_1 &= -e^{2imt} \, \,\, \partial_x \phi_2  \\ \partial_t \phi_2 &= -e^{-2imt} \partial_x \phi_1 \end{align}.\]
+                        </div>
+                </div>
+                So the Dirac equation is the only game that satisfies the nonrelativistic limit. Pretty crazy. Each components' refusal to cooperate means they keep orbiting some sort of Nash Equilibrium; their refusal is what makes the universe what it is. What's pretty cool is that trying to frame QM through game theory forces you to have another player, which predicts the structure of the Dirac Equation.
+                
+                <br>
+                <br>
+                I pulled a sort of fast one. A game with a complex-valued payoff function doesn't really make sense; there's no ordering on $\mathbb{C}$. We can resolve this if we switch to the rotating frame, where our strategies become $\phi_1$ and $\phi_2$ instead of $\psi_1$ and $\psi_2$. 
+
+                <!-- In continuous-time, first-order updates satisfy $\partial_t \phi = \pm \nabla_\phi L$. So if our strategies are $\phi_i$, then this structure
+                looks a lot like the expanded, altered Dirac Equation in 1+1. But again, we have this annoying phase factor causing some weird rotation! What this tells us is that
+                our payoff function $L$ must be some sort of complex map ($L : L^2(\mathbb{R}) \times L^2(\mathbb{R}) \rightarrow \mathbb{C}$).  -->
+
+                <!-- <br>
+                <br> -->
+                <!-- We can guess at a form for $L$; the simplest is \[ L = \phi_1^{\dagger} e^{2imt} \partial_x \phi_2 - \phi_2^{\dagger} e^{-2imt} \partial_x \phi_1.\] Another payoff function that works is \[ L = \int dx \, \, [  \phi_1^{\dagger} e^{2imt} \partial_x \phi_2 - \phi_2^{\dagger} e^{-2imt} \partial_x \phi_1 ];\]
+                this form looks a lot like the action, which we can use the Euler-Lagrange Equations (sort of ) to differeniate; to handle the complexity, we use Wirtinger calculus, where $\phi$ and $\phi^\dagger$ are independent variables (I don't really know this; I just googled how to do it LOL). If we do these derivatives, and we compare them to the Dirac Equation, we see that $\phi_1$ corresponds to the strategy of a player minimizing $L$, and $\phi_2$ to the strategy of a player maximizing $L$. Hence, the evolution of the spinor is a 
+                game with a complex-valued and time-dependent payoff function between the two components. Each components' refusal to cooperate means they keep orbiting some sort of Nash Equilibrium; their refusal is what makes the universe what it is. What's pretty cool is that trying to frame QM through game theory forces you to have another player, which sort of predicts the structure of the Dirac Equation.
+     -->
+                <!-- <br>
+                <br> -->
+                <!-- If we rewrite our payoff function in terms of the original spinor components $\psi_1$ and $\psi_2$, we obtain \[ L = \int dx \, \, [\psi_1^{\dagger} \partial_x \psi_2 - \psi_2^{\dagger} \partial_x \psi_1].\] -->
+
+                <div class="lyrics-card">
+                    <blockquote>
+                        Ralph: I’m not a bad guy, Felix. I’m just... tired of being the guy who lives in the garbage. <br> <br>
+                         Felix: But you’re the breaker! I’m the fixer! That’s how it works! It’s the natural order of things!<br>
+                        <p class="lyrics-emphasis">
+                            <i> Wreck-It Ralph,</i> 2012
+                        </p>
+                    </blockquote>
+                </div>
+
+                <br>
+                ...to be continued
+                
+                <!-- <h2>A Brief Review of Noether's Theorem</h2>
+                This section is largely taken from Morin. 
+                <div class="note-card">
+                    <div class="note-header">Noether's Theorem</div>
+                        <div class="note-content">
+                           For each symmetry of the Lagrangian, there is a conserved quantity.
+                        </div>
+                </div>
+                <h2>Noether's, Duality, and Games</h2>
+                <h2>Closing Remarks</h2> -->
+
+
+
+
+
 
                 </article>
 
