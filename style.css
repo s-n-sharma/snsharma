@@ -699,3 +699,122 @@ a.tag.git-link:hover {
 [data-theme="dark"] .content-image:hover {
     opacity: 1;
 }
+
+/* --- Secure Vault Styling --- */
+
+/* The Login Card (Locked State) */
+#login-screen {
+    text-align: center;
+    padding: 50px 30px;
+    background-color: rgba(0,0,0,0.02); /* Subtle background like your lyrics card */
+    border-radius: 12px;
+    margin: 40px auto;
+    max-width: 500px;
+    border: 1px solid rgba(0,0,0,0.08); /* Very faint border */
+    transition: transform 0.2s ease;
+}
+
+[data-theme="dark"] #login-screen {
+    background-color: rgba(255,255,255,0.03);
+    border-color: rgba(255,255,255,0.08);
+}
+
+#login-screen h2 {
+    margin-top: 0;
+    font-size: 1.5rem;
+    color: var(--link-color);
+}
+
+#login-screen p {
+    color: var(--accent-color);
+    margin-bottom: 25px;
+}
+
+/* The File Input (Styled to look like a drop zone) */
+#key-file-input {
+    display: block;
+    margin: 0 auto 20px auto;
+    padding: 20px;
+    width: 80%;
+    border: 2px dashed var(--accent-color);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-color);
+    font-family: var(--font-main);
+    transition: border-color 0.2s ease;
+}
+
+#key-file-input:hover {
+    border-color: var(--hover-color);
+    background-color: rgba(0,0,0,0.01);
+}
+
+/* The Buttons (Matches your .filter-btn style) */
+.vault-btn {
+    background-color: transparent;
+    border: 1px solid var(--accent-color); /* Subtle border */
+    color: var(--text-color);
+    padding: 8px 24px;
+    border-radius: 20px; /* Pill shape */
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: var(--font-main);
+}
+
+.vault-btn:hover {
+    border-color: var(--hover-color);
+    color: var(--hover-color);
+    transform: translateY(-1px);
+}
+
+/* The Error Message */
+#error-msg {
+    color: #ef4444; /* Soft Red */
+    margin-top: 15px;
+    font-size: 0.9rem;
+    display: none; /* Hidden by default */
+}
+
+/* The Unlocked Content (Invisible container, no borders) */
+#vault-content {
+    display: none; /* Hidden by default */
+    margin-top: 40px;
+    animation: fadeIn 0.5s ease;
+}
+
+/* Simple fade in animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Optional: Style the Lock button differently if you want */
+#lock-btn {
+    margin-top: 40px;
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+/* Styling for the SVG Lock Icon */
+.vault-icon {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    margin-right: 10px; /* Space between icon and text */
+    vertical-align: text-bottom;
+}
+
+/* Make sure the header aligns the icon and text */
+#login-screen h2, 
+.vault-header-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
