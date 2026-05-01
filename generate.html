@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vault Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body style="padding: 40px; font-family: sans-serif;">
+
+    <h1>Vault Data Generator</h1>
+    
+    <h3>1. Enter the Secret Content (HTML allowed)</h3>
+    <textarea id="secretData" rows="4" cols="50" placeholder="<p>My secret diary...</p>"></textarea>
+    
+    <h3>2. Upload the Image you want to be the Key</h3>
+    <input type="file" id="keyFile">
+    
+    <br><br>
+    <button onclick="generate()">ENCRYPT NOW</button>
+
+    <h3>3. Copy this string into your website code:</h3>
+    <textarea id="output" rows="4" cols="50" readonly></textarea>
+
+    <script>
+        function generate() {
+            const secret = document.getElementById("secretData").value;
+            const fileInput = document.getElementById("keyFile");
+            const file = fileInput.files[0];
+
+            if (!secret || !file) {
+                alert("Please fill in text and select a file.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const binaryString = e.target.result;
+                
+                // Create the Key Hash (Must match the website logic exactly)
+                const keyHash = CryptoJS.SHA256(CryptoJS.enc.Latin1.parse(binaryString)).toString();
+                
+                // Encrypt
+                const encrypted = CryptoJS.AES.encrypt(secret, keyHash).toString();
+                
+                document.getElementById("output").value = encrypted;
+            };
+            reader.readAsBinaryString(file);
+        }
+    </script>
+</body>
+</html>

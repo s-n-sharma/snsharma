@@ -818,3 +818,151 @@ a.tag.git-link:hover {
     justify-content: center;
     gap: 8px;
 }
+
+/* --- Heptapod Circle Styling --- */
+.heptapod-stroke {
+    stroke: #111;
+}
+.heptapod-fill {
+    fill: #111;
+}
+[data-theme="dark"] .heptapod-stroke {
+    stroke: #eee;
+}
+[data-theme="dark"] .heptapod-fill {
+    fill: #eee;
+}
+.heptapod-svg {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Logo group: name + heptapod side by side */
+.logo-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.name-heptapod {
+    display: inline-flex;
+    align-items: center;
+    line-height: 0;
+}
+
+.heptapod-signature {
+    border-top: none;
+    padding-top: 0;
+}
+
+/* --- Home Page Sections --- */
+.home-section {
+    margin-bottom: 40px;
+}
+.home-section h2 {
+    font-size: 1.25rem;
+    margin-bottom: 16px;
+    color: var(--link-color);
+}
+
+/* Recent Posts */
+.recent-posts {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+.recent-post-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 0;
+    text-decoration: none;
+    color: var(--text-color);
+    border-bottom: 1px solid rgba(107, 114, 128, 0.15);
+    transition: color 0.15s;
+}
+.recent-post-card:hover {
+    color: var(--hover-color);
+}
+.recent-post-title {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+.recent-post-meta {
+    font-size: 0.8rem;
+    color: var(--accent-color);
+    white-space: nowrap;
+    margin-left: 16px;
+}
+.see-all-link {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 0.85rem;
+    color: var(--accent-color);
+    text-decoration: none;
+}
+.see-all-link:hover {
+    color: var(--hover-color);
+}
+
+/* Currently Grid */
+.currently-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 30px;
+}
+.currently-item {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+.currently-label {
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--accent-color);
+    margin-bottom: 2px;
+}
+
+/* Interests */
+.interests-list {
+    padding-left: 20px;
+    font-size: 0.92rem;
+    line-height: 1.7;
+}
+.interests-list li {
+    margin-bottom: 6px;
+}
+
+/* Social Links */
+.home-links {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    padding-top: 10px;
+}
+.social-link {
+    color: var(--accent-color);
+    transition: color 0.15s;
+}
+.social-link:hover {
+    color: var(--hover-color);
+}
+.social-link svg {
+    width: 22px;
+    height: 22px;
+}
+
+@media (max-width: 600px) {
+    .currently-grid {
+        grid-template-columns: 1fr;
+    }
+    .recent-post-card {
+        flex-direction: column;
+        gap: 2px;
+    }
+    .recent-post-meta {
+        margin-left: 0;
+    }
+}

@@ -1,35 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Blog</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <script>
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            document.body.setAttribute('data-theme', 'dark');
-        }
-    </script>
+---
+layout: default
+title: My Blog
+---
 
-    <div class="container">
-        <header>
-            <a href="index.html" class="logo">Sidharth Sharma</a>
-            <nav>
-                <a href="index.html">Home</a>
-                <a href="blog.html">Blog</a>
-                <a href="private_blog.html">Private Blog</a>
-                <a href="#">Pictures</a>
-                <a href="more_about_me.html">More About Me</a>
-                <button id="theme-toggle">🌙</button>
-            </nav>
-        </header>
-
-        <main>
-
-          <div class="filter-container">
+<div class="filter-container">
     <button class="filter-btn active" onclick="filterPosts('all')">All</button>
     <button class="filter-btn" onclick="filterPosts('cs')">CS</button>
     <button class="filter-btn" onclick="filterPosts('physics')">Physics</button>
@@ -39,158 +13,60 @@
 
 <div class="post-list">
 
-
+{% assign posts_by_year = site.posts | group_by_exp: "post", "post.date | date: '%Y'" %}
+{% for year in posts_by_year %}
     <div class="year-group">
-        <div class="year-label">2026</div>
-        <div class="post-item" data-tag="life">
-            <a href="blogs/sp26_first_thoughts.html" class="post-title">First Impressions of Spring 2026</a>
-            <div class="post-desc">What I like and don't like about my classes, so far</div>
+        <div class="year-label">{{ year.name }}</div>
+        {% for post in year.items %}
+        <div class="post-item" data-tag="{{ post.tags | join: ' ' | downcase }}">
+            <a href="{{ post.url }}" class="post-title">{{ post.title }}</a>
+            {% if post.description %}
+            <div class="post-desc">{{ post.description }}</div>
+            {% endif %}
             <div class="tags">
-                <span class="tag">Life</span>
+                {% for tag in post.tags %}
+                <span class="tag">{{ tag }}</span>
+                {% endfor %}
             </div>
-            <div class="post-meta">February 26, 2026 · 5 min read</div>
+            <div class="post-meta">{% if post.custom_meta %}{{ post.custom_meta }}{% else %}{{ post.date | date: "%B %-d, %Y" }}{% endif %}{% if post.read_time %} · {{ post.read_time }}{% endif %}</div>
         </div>
-        <!-- <div class="post-item" data-tag="life">
-            <a href="blogs/food_2026.html" class="post-title">Everything NICE I ate in 2026</a>
-            <div class="post-desc">All the food that's fit to post </div>
-            <div class="tags">
-                <span class="tag">Random</span>
-            </div>
-            <div class="post-meta">January 21, 2026 · Updated Often</div>
-        </div> -->
+        {% endfor %}
+        {% if year.name == "2025" %}
+        <!-- first_post.html is kept as old-school HTML, linked manually -->
         <div class="post-item" data-tag="random">
-            <a href="blogs/derry.html" class="post-title">IT: Welcome to Derry</a>
-            <div class="post-desc">tl;dr: I liked it</div>
+            <a href="blogs/first_post.html" class="post-title">My First Post and thoughts on my website</a>
+            <div class="post-desc">Hello there</div>
             <div class="tags">
                 <span class="tag">Random</span>
             </div>
-            <div class="post-meta">January 17, 2026 · 1 min read</div>
+            <div class="post-meta">July 16, 2025 · 1 min read</div>
         </div>
-        <div class="post-item" data-tag="cs">
-            <a href="blogs/mps_1.html" class="post-title">MPSparse: GPU-accelerated Sparse Matrix Solvers, Part I</a>
-            <div class="post-desc">Oh the debugging 😭</div>
-            <div class="tags">
-                <span class="tag">cs</span>
-            </div>
-            <div class="post-meta">January 16, 2026 · 7 min read</div>
-        </div>
-        <div class="post-item" data-tag="cs">
-            <a href="blogs/slice_retreat_winter2026.html" class="post-title">SLICE Research Retreat Winter 2026</a>
-            <div class="post-desc">My thoughts on SLICE Retreat</div>
-            <div class="tags">
-                <span class="tag">cs</span>
-            </div>
-            <div class="post-meta">Under Construction · ? min read</div>
-        </div>
-        <div class="post-item" data-tag="cs physics">
-                    <a href="blogs/opt_qm_2.html" class="post-title">Optimization, Game Theory, and Quantum Mechanics, Part II</a>
-                    <div class="post-desc">Yapping, Part Deux: mirror descent, game theory, and QM</div>
-                    <div class="tags">
-                       <span class="tag">cs</span>
-                       <span class = "tag">physics</span>
-                    </div>
-                    <div class="post-meta">Preview · 20 min read</div>
-                </div>
+        {% endif %}
     </div>
+{% endfor %}
 
-    
+</div>
 
-  <div class="year-group">
-                <div class="year-label">2025</div>
+<div style="margin-top: 40px; text-align: center;">
+    <a href="/private_blog.html" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; border: 1px solid var(--accent-color); border-radius: 6px; text-decoration: none; color: var(--text-color); font-size: 0.9em; opacity: 0.7; transition: opacity 0.2s;"
+       onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Private Vault
+    </a>
+</div>
 
-
-                <div class="post-item" data-tag="cs physics">
-                    <a href="blogs/opt_qm_1.html" class="post-title">Optimization, Game Theory, and Quantum Mechanics, Part I</a>
-                    <div class="post-desc">Another way of looking at Quantum Mechanics? </div>
-                    <div class="tags">
-                       <span class="tag">cs</span>
-                       <span class = "tag">physics</span>
-                    </div>
-                    <div class="post-meta">December 26, 2025 · 15 min read</div>
-                </div>
-
-                <div class="post-item" data-tag="life">
-                    <a href="blogs/thanks_newyear.html" class="post-title">What I'm Grateful for and What I Hope for</a>
-                    <div class="post-desc">The Year in Review: 2025 --> 2026</div>
-                    <div class="tags">
-                       <span class="tag">Life</span>
-                    </div>
-                    <div class="post-meta">December 13, 2025 · 7 min read</div>
-                </div>
-
-                <div class="post-item" data-tag="life">
-                    <a href="blogs/f25_class_review.html" class="post-title">Reviews for my Fall 2025 classes</a>
-                    <div class="post-desc">What I liked and didn't like about my courses in my Fall 2025 semester</div>
-                    <div class="tags">
-                       <span class="tag">Life</span>
-                    </div>
-                    <div class="post-meta">December 13, 2025 · 5 min read</div>
-                </div>
-
-                <div class="post-item" data-tag="cs">
-                    <a href="blogs/adaboost.html" class="post-title">LaTeX and Adaboost</a>
-                    <div class="post-desc">A little test of LaTeX and a little bit about a cool algorithm</div>
-                    <div class="tags">
-                       <span class="tag">CS</span>
-                    </div>
-                    <div class="post-meta">November 17, 2025 · 5 min read</div>
-                </div>
-
-                <div class="post-item" data-tag="random">
-                    <a href="blogs/started_hoi4.html" class="post-title">Hearts of Iron IV</a>
-                    <div class="post-desc">I've started playing HOI IV, and it's amazing.</div>
-                    <div class="tags">
-                       <span class="tag">Random</span>
-                    </div>
-                    <div class="post-meta">August 15, 2025 · 1 min read</div>
-                </div>
-
-                <div class="post-item" data-tag="random">
-                    <a href="blogs/fav_drink.html" class="post-title">A simple banana milkshake</a>
-                    <div class="post-desc">My favorite drink these past several months</div>
-                    <div class="tags">
-                       <span class="tag">Random</span>
-                    </div>
-                    <div class="post-meta">July 26, 2025 · 2 min read</div>
-                </div>
-
-                <div class="post-item" data-tag="life">
-                    <a href="blogs/freshman_classes_reviews.html" class="post-title">Reviews for my first-year courses</a>
-                    <div class="post-desc">What I liked and didn't like about the courses I took this year</div>
-                    <div class="tags">
-                       <span class="tag">Life</span>
-                    </div>
-                    <div class="post-meta">July 17, 2025 · 8 min read</div>
-                </div>
-
-                <div class="post-item" data-tag="random">
-                    <a href="blogs/first_post.html" class="post-title">My First Post and thoughts on my website</a>
-                    <div class="post-desc">Hello there</div>
-                    <div class="tags">
-                       <span class="tag">Random</span>
-                    </div>
-                    <div class="post-meta">July 16, 2025 · 1 min read</div>
-                </div>
-
-
-
-
-            </div>
-    
-   
-
+<div style="margin-top: 50px; padding-top: 20px; border-top: 1px solid var(--accent-color); opacity: 0.6;">
+    <details>
+        <summary style="cursor: pointer; font-size: 0.85em; color: var(--text-color);">Signature Verification</summary>
+        <div style="font-size: 0.8em; margin-top: 10px; line-height: 1.6; color: var(--text-color);">
+            <p>Each blog post is signed with a <b>Heptapod Circle</b> — an SVG logogram generated from the SHA-256 hash of the post's text content. To verify a post's signature:</p>
+            <ol>
+                <li>Copy the visible text content of the post (excluding the signature itself).</li>
+                <li>Compute the SHA-256 hash of the trimmed text.</li>
+                <li>The resulting 64 hex characters deterministically produce the Heptapod Circle shown at the bottom of the post.</li>
+            </ol>
+            <p>The generation algorithm is open and lives in <a href="/heptapod.js" class="clean-link">heptapod.js</a>. The header logo is the Heptapod Circle for the SHA-256 hash of <code>Sidharth Sharma</code>.</p>
         </div>
-            
-
-        </main>
-
-        <footer>
-            &copy; 2025 Sidharth Sharma. 
-        </footer>
-    </div>
-
-    <script src="script.js"></script>
-</body>
-</html>
-
+    </details>
+</div>
 
