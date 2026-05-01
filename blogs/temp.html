@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EE 290: Extreme Ultraviolet Lithography - Homework 2</title>
+    
+    <style>
+        body {
+            font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            color: #000;
+        }
+        h1, h2, h3, h4 {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: #111;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.2rem;
+        }
+        .header h2 {
+            font-size: 1.4rem;
+            font-weight: normal;
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+        .header p {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+        hr {
+            border: 0;
+            border-top: 1px solid #000;
+            margin-bottom: 2rem;
+        }
+        h2.section-title {
+            font-size: 1.3rem;
+            border-bottom: none;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        .solution {
+            margin-top: 0.5em;
+            margin-bottom: 1.5em;
+        }
+        .solution-label {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-weight: bold;
+            display: block;
+        }
+        ol {
+            margin-bottom: 2rem;
+            padding-left: 1.5rem;
+        }
+        li {
+            margin-bottom: 1.5rem;
+        }
+        p {
+            margin-bottom: 1rem;
+        }
+    </style>
+
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$']],
+                displayMath: [['$$', '$$']],
+                macros: {
+                    EUV: "\\text{EUV}",
+                    NA: "\\operatorname{NA}",
+                    CD: "\\text{CD}",
+                    kone: "k_1",
+                    Sn: "\\text{Sn}"
+                }
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+    <div class="header">
+        <h1>EE 290: Extreme Ultraviolet Lithography</h1>
+        <h2>Homework 2</h2>
+        <p>Sidharth Sharma &middot; February 23, 2026</p>
+        <hr>
+    </div>
+
+    <h2 class="section-title">Problem 1: Minimum separation of the two peaks using Fourier analysis</h2>
+    <p>For two infinitely narrow slits, the optical disturbance emerging from the mask can be represented by 
+    $$ M(x') = e^{-i\pi/2} \delta\left(x' + \frac{p}{2}\right) + e^{i\pi/2} \delta\left(x' - \frac{p}{2}\right). $$</p>
+
+    <ol type="a">
+        <li>
+            Find the Fourier transform of $M$ which is proportional to the optical disturbance in the Fourier plane (also called the back focal plane and the pupil plane).
+            <div class="solution">
+                <span class="solution-label">Solution:</span>
+                <p>This is straightforward; we use the standard properties of $\delta$:</p>
+                $$ \begin{aligned}
+                    \mathcal{F}[M](k) &= e^{-i\pi/2}\int dx\, \, \delta\left(x + \frac{p}{2}\right) \, e^{-ikx} + e^{i\pi/2} \int dx \, \, \delta\left(x - \frac{p}{2}\right) \, e^{-ikx} \\ 
+                    &= e^{-i\pi/2} \, e^{ikp/2} + e^{i\pi/2} e^{-ikp/2} \\ 
+                    &= 2\cos\left((kp - \pi)/2\right) \\ 
+                    &= 2\sin(kp/2).
+                \end{aligned} $$
+            </div>
+        </li>
+
+        <li>
+            As the separation of the two slits becomes $\ll 0.5\lambda/\operatorname{NA}$, approximate this function by a linear function that drops to zero outside the NA-defining aperture of the imaging system.
+            <div class="solution">
+                <span class="solution-label">Solution:</span>
+                <p>Using $\sin \alpha \approx \alpha$ for $\alpha \ll 1$, $\mathcal{F}[M](k) \approx 2 \cdot kp/2 = kp$. To make sure that it vanishes outside the NA-defining aperture of the imaging system, we multiply to get $kp \cdot \operatorname{rect}(k\lambda/2 \operatorname{NA})$.</p>
+            </div>
+        </li>
+
+        <li>
+            Perform a Fourier transform on this function to find the optical disturbance in the wafer plane and show that the lower limit of the separation of the two peak intensity is $0.66 \lambda/\operatorname{NA}$, the same answer that we found last time by directly analyzing the impulse responses from these slits.
+            <div class="solution">
+                <span class="solution-label">Solution:</span>
+                <p>We apply an inverse Fourier transform:</p>
+                $$ \begin{aligned}
+                    \mathcal{F}^{-1}[\mathcal{F}_{\operatorname{approx}}[M](k)](x) &= \int dk \, kp \cdot \operatorname{rect}(k\lambda/2 \operatorname{NA}) \, e^{ikx} \\ 
+                    &= p \int_{-a}^{+a} dk\, k  \, e^{ikx},
+                \end{aligned} $$
+                <p>where $a = 2\pi \operatorname{NA}/\lambda$. Evaluating this yields</p>
+                $$ \begin{aligned}
+                    E(x) = 2ip \left ( \frac{\sin(ax) - ax\cos(ax)}{x^2} \right),
+                \end{aligned} $$
+                <p>so that</p>
+                $$ \begin{aligned}
+                    I(x) = 4p^2 \left ( \frac{\sin(ax) - ax\cos(ax)}{x^2} \right)^2,
+                \end{aligned} $$
+                <p>which is symmetric. Solving numerically for its maximum yields $ax = 2\pi \operatorname{NA}/\lambda  \cdot x = 2.08$, or $x = 0.33 \, \, \lambda/\operatorname{NA}$. The total distance between the peaks, due to $I$ being symmetric, is $0.66 \, \, \lambda/\operatorname{NA}$, in agreement with the prior homework.</p>
+            </div>
+        </li>
+    </ol>
+
+    <h2 class="section-title">Problem 2: Image intensity and contrast</h2>
+    <p>Patterns of multiple periods (or pitches in lithographic lingo) may appear on the same photomask. If a mask containing lines and spaces of the pitch $p = 2k_1 \lambda/\operatorname{NA}$ where $0.25 < k_1 < 0.5$ is exposed with dipole illumination at optimal angles $\pm \sin^{-1}(\lambda/2p)$, then the light intensity is $I(x, z) = 2(A^2 + B^2 + 2AB \cos (2\pi x/p))$ and, in theory, the depth of focus (DOF) for these lines is infinitely large, as was shown in class.</p>
+    
+    
+
+    <p>Under the above illumination configuration (i.e., dipole illumination optimized for printing lines of pitch $p$), for lines and spaces of equal width but of pitch $2p$ (Fourier coefficients $c_0 = 1/2$, $c_{\pm 1} = 1/\pi$, $c_{\pm 2} = 0$):</p>
+
+    <ol type="a">
+        <li>
+            Derive an expression for the image intensity.
+            <div class="solution">
+                <span class="solution-label">Solution:</span>
+                <p>To start, we consider just the first pole with angle $\sin \theta = \lambda/2p$. Thus, we have that</p>
+                $$ \begin{aligned}
+                    \sin \theta_m = \lambda/2p + m \lambda/(2p),
+                \end{aligned} $$
+                <p>so that $\sin \theta_0 = \lambda/2p$, $\sin \theta_1 = \lambda/p$, and $\sin \theta_{-1} = 0$. From this, we can observe that $\sin \theta_1 = \lambda/p = \operatorname{NA}/2k_1 > \operatorname{NA}$, for $k_1 < 0.5$, implying that the $1$st order doesn't get through, while the others do. Hence, the electric field is given by</p>
+                $$ \begin{aligned}
+                    E(x) &= c_0 e^{i2\pi x \sin(\theta_0) /\lambda} + c_{-1} e^{i 2\pi x \sin(\theta_{-1})/\lambda} \\ 
+                    &= 1/2 \, e^{i\pi x/p} + 1/\pi.
+                \end{aligned} $$
+                <p>Then, the single-pole intensity is</p>
+                $$ \begin{aligned}
+                    I(x) = |E(x)|^2 &= 1/4 + 1/\pi^2  + 1/\pi \cdot (e^{i\pi x/p} + e^{-i\pi x/p})/2 \\ 
+                    &= 1/4 + 1/\pi^2 + 1/\pi \cdot \cos(\pi x/p).
+                \end{aligned} $$
+                <p>Now, we consider the second pole. We can observe that $E(x)$ from it will merely be the conjugate of the first pole's, and hence the intensity just doubles, yielding</p>
+                $$ \begin{aligned}
+                    I(x) = 1/2 + 2/\pi^2 + 2/\pi \cdot \cos(\pi x/p).
+                \end{aligned} $$
+            </div>
+        </li>
+
+        <li>
+            Derive an expression for the image contrast that is $z$-dependent.
+            <div class="solution">
+                <span class="solution-label">Solution:</span>
+                <p>The $z$-dependent expression for $E_1(x)$ is</p>
+                $$ \begin{aligned}
+                    E_1(x, z) &= \frac{1}{2} e^{i \pi x/p} \, e^{i 2\pi z \sqrt{1 - (\lambda/2p)^2}/\lambda} + \frac{1}{\pi} e^{2i\pi z/\lambda},
+                \end{aligned} $$
+                <p>so that the intensity is given by</p>
+                $$ \begin{aligned}
+                    I_1(x, z) = |E_1(x, z)|^2 &= 1/4 + 1/\pi^2 + \frac{1}{\pi} \cos \left ( \frac{\pi x}{p} - \frac{2\pi z}{\lambda} \cdot \left(1 - \sqrt{1 - \left(\frac{\lambda}{2p}\right)^2} \right)\right).
+                \end{aligned} $$
+                <p>Similarly, the intensity from the second pole is given by</p>
+                $$ \begin{aligned}
+                    I_2(x, z) = |E_2(x, z)|^2 &=  1/4 + 1/\pi^2 + \frac{1}{\pi} \cos \left ( \frac{\pi x}{p} + \frac{2\pi z}{\lambda} \cdot \left(1 - \sqrt{1 - \left(\frac{\lambda}{2p}\right)^2} \right)\right).
+                \end{aligned} $$
+                <p>The total intensity is then given by, using the identity $\cos(\alpha + \beta) + \cos(\alpha - \beta) = 2\cos(\alpha) \cos(\beta)$,</p>
+                $$ \begin{aligned}
+                    I(x, z) = \frac{1}{2} + \frac{2}{\pi^2} + \frac{2}{\pi} \cos(\pi x/p) \cos\left(\frac{2\pi z}{\lambda} \cdot \left ( 1 - \sqrt{1 - \left(\frac{\lambda}{2p}\right)^2}\right)\right).
+                \end{aligned} $$
+                <p>Hence, the contrast is</p>
+                $$ \begin{aligned}
+                    C = \frac{I_{\max} - I_{\min}}{I_{\max} + I_{\min}} = \frac{4/\pi }{1 + 4/\pi^2} \cos\left(\frac{2\pi z}{\lambda} \cdot \left ( 1 - \sqrt{1 - \left(\frac{\lambda}{2p}\right)^2}\right)\right).
+                \end{aligned} $$
+            </div>
+        </li>
+
+        <li>
+            Assuming a minimum contrast of approximately $0.7$ at the edge of defocus, write an expression for the DOF in units of $k_1^2 \lambda/\operatorname{NA}^2$. Assuming $\lambda = 13.5 \operatorname{nm}$, $\operatorname{NA} = 0.55$, and $k_1 = 0.4$ what is the approximate DOF (in $\operatorname{nm}$)?
+            <div class="solution">
+                <span class="solution-label">Solution:</span>
+                <p>Substituting the value of $p = 2k_1 \lambda/\operatorname{NA}$, we obtain that</p>
+                $$ \begin{aligned}
+                    \frac{2\pi z}{\lambda} \cdot \left ( 1 - \sqrt{1 - \left(\frac{\operatorname{NA}}{4k_1}\right)^2}\right) &= \cos^{-1}\left( 0.7 \cdot \frac{1 + 4/\pi^2}{4/\pi }\right) = 0.69 \\ 
+                    &= \frac{\pi z \operatorname{NA}^2}{16k_1^2 \lambda},
+                \end{aligned} $$
+                <p>where we used the binomial approximation. From this, we can observe that</p>
+                $$ \begin{aligned}
+                    \operatorname{DoF} = 2z = 2 \cdot 0.69 \cdot \frac{16}{\pi} \frac{k_1^2 \lambda}{\operatorname{NA}^2} \approx 7.02 \,  \frac{k_1^2 \lambda}{\operatorname{NA}^2}.
+                \end{aligned} $$
+                <p>Substituting and solving for $z$ yields $z = 25 \operatorname{nm}$, or $\operatorname{DoF} = 50 \operatorname{nm}$.</p>
+            </div>
+        </li>
+    </ol>
+
+</body>
+</html>

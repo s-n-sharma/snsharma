@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A simple banana milkshake</title>
+<link rel="stylesheet" href="/style.css">
+
+
+
+</head>
+<body>
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+        }
+    </script>
+
+    <div class="container">
+        <header>
+    <div class="logo-group">
+        <a href="/" class="logo">Sidharth Sharma</a>
+        <span id="name-heptapod" class="name-heptapod"></span>
+    </div>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/blog.html">Blog</a>
+        <a href="#">Pictures</a>
+        <button id="theme-toggle"></button>
+    </nav>
+</header>
+
+
+        <main>
+            <article>
+                <h1 class="post-title-large">A simple banana milkshake</h1>
+                <div class="post-meta">July 26, 2025 · 2 min read</div>
+                
+                <div class="tags">
+                    
+                    <span class="tag">Random</span>
+                    
+                </div>
+
+                <hr style="margin: 20px 0; border: 0; border-top: 1px solid var(--accent-color); opacity: 0.3;">
+
+                <p>I have been drinking this almost religiously these past couple months, and I think it is the best drink I've ever had. Here
+    is what I put in it:
+    <ul>
+      <li>4-5 cups of milk</li>
+      <li>2 dates</li>
+      <li>2 bannanas</li>
+      <li>1/2-1 teaspoon of kewda water</li>
+    </ul>
+    I blend it all together. Depending on the ripeness of the bananas, I add less or more milk and dates. The kewda water also adds a 
+    nice hint of flavor, but it is important not to put too much and overpower everything else. I drink this every single day. 
+  </p>
+
+
+                <div class="heptapod-signature" style="text-align:center; margin:12px 0 0 0; padding-top:10px; opacity: 0.8;">
+                    <div id="post-heptapod"></div>
+                    <div class="post-meta" style="margin-top: 4px; font-size: 0.8em;">signed</div>
+                </div>
+            </article>
+        </main>
+
+        <footer>
+    &copy; 2026 Sidharth Sharma.
+</footer>
+
+    </div>
+
+    <script src="/heptapod.js"></script>
+    <script src="/script.js"></script>
+    <script>
+        // Generate heptapod signature from post content
+        (async function() {
+            const article = document.querySelector('article');
+            // Get text content excluding the heptapod signature itself
+            const sigDiv = document.querySelector('.heptapod-signature');
+            if (sigDiv) sigDiv.style.display = 'none';
+            const text = article ? article.textContent.trim() : '';
+            if (sigDiv) sigDiv.style.display = '';
+            
+            const hash = await hashText(text);
+            const container = document.getElementById('post-heptapod');
+            if (container) {
+                container.innerHTML = heptapodCircle(hash, 200);
+            }
+        })();
+    </script>
+</body>
+</html>

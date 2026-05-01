@@ -1,0 +1,39 @@
+title: Sidharth Sharma
+description: Personal website of Sidharth Sharma
+url: ""
+baseurl: ""
+
+permalink: /blogs/:title.html
+
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+  - scope:
+      path: ""
+    values:
+      layout: "default"
+
+exclude:
+  - README.md
+  - generate.html
+  - Gemfile
+  - Gemfile.lock
+  - blogs/old_blog_template.html
+  - blogs/temp.html
+  - blogs/template.html
+  - blogs/adaboost.html
+  - blogs/derry.html
+  - blogs/f25_class_review.html
+  - blogs/fav_drink.html
+  - blogs/food_2026.html
+  - blogs/freshman_classes_reviews.html
+  - blogs/mps_1.html
+  - blogs/opt_qm_1.html
+  - blogs/opt_qm_2.html
+  - blogs/slice_retreat_winter2026.html
+  - blogs/sp26_first_thoughts.html
+  - blogs/started_hoi4.html
+  - blogs/thanks_newyear.html

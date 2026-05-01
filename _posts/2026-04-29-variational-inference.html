@@ -1,0 +1,42 @@
+---
+layout: post
+title: "Approximate Entropy Regularization in Flow Policies with Variational Inference"
+date: 2026-04-29
+tags: [CS]
+read_time: "5 min read"
+description: "Something cool I learned"
+mathjax: true
+---
+
+<h2>Introduction</h2>
+
+Flow networks are types of models that have become increasingly popular in machine and reinforcement learning. They 
+offer a way to learn complex probability distributions without the need for complicated diffusion models. At inference time, we sample $a_0 \sim N(0, I)$ and 
+integrate the ordinary differential equation \[ \frac{d\mathbf{x}}{dt} = v(\mathbf{x}, t),\] where $v(\mathbf{x}, t)$ is a learned vector field and 
+can be represented by some deep neural network. 
+
+In practice, we replace the integral with Euler integration, so that we compute $a_{t + 1} = a_t + \Delta t \cdot v(a_t, t)$, where $t \in [0, \dots ,T/\Delta t]$. Flow policies 
+are very powerful, but they can difficult to work with. One such problem that I encountered was preventing mode collapse; generally, you can add an entropy term 
+to the objective to encourage exploration, but how would one even compute the entropy of a one-step flow policy, let alone an $n$-step policy?
+
+
+<h2>Variational Inference</h2>
+
+To address this, we can borrow some techniques from variational inference. Specifically, we can use the idea of writing a lower bound of the entropy 
+and pushing it to tightness. Consider the mutual information
+between $X$ and $Z$: \[ I(Z, X) = H(X) - H(X|Z) = H(Z) - H(Z | X).\] But we run into a problem: $H(Z | X)$ is $-\infty$, since $X$ is deterministic given $Z$, and we're dealing with differential entropy. We can avoid this 
+by injecting a little stochasticity: $p(x | z) = \mathcal{N}(x; v_\theta(z, 0), \sigma^2 I)$, causing $H(Z | X) = c$ for some constant $C$. Thus, we can write $H(X) = H(Z) - c$ and $H(X) = H(Z) - H(Z | X) + c$. But $z \sim N(0, I)$ has a fixed entropy, so maximizing $H(X)$ is equivalent to minimizing $H(Z | X)$. Let's write $H(Z | X)$ out:
+\[ H(Z | X) = - E_{x, z \sim p(x, z)} [\log p(z | x)] = - E_{x \sim p(x)} E_{z \sim p(z | x)} [\log p(z | x)] .\]
+However, we can't compute the posterior $p(z | x)$ directly, so we use variational inference. Specifically, we approximate $p(z | x)$ with some learned distribution $q(z | x)$, which is parametrized by some neural network. Starting from the KL divergence between $p(z | x)$ and $q(z | x)$, we have 
+\[ D_{KL}(p || q) = E_{z \sim p(z | x)} [\log p(z | x) - \log q(z | x)] \geq 0,\]
+so that \begin{align} H(Z | X) &= -E_{x \sim p(x)} [D_{KL}(p || q) + E_{z \sim p(x | z)} [\log q(z | x)]] \\ &= -D_{KL}(p || q) - E_{x, z \sim p(x, z)} [\log q(z | x)] \\ &\leq -E_{x, z \sim p(x, z)} [\log q(z | x)].\end{align}
+Thus, as aiming to maximize $H(X)$ is equivalent to minimizing $H(Z | X$), we can then instead minimize $-E_{x, z \sim p(x, z)} [\log q(z | x)]$ or equivalently maximize $E_{x, z \sim p(x, z)} [\log q(z | x)]$.
+In the case that $q(z | x)$ is a normal distribution, this becomes equivalent to minimizing the mean squared error between $z$ and the reconstructed noise $q(z | x)$. 
+If we substitute it back into the expression for $H(X)$, we get \[ H(X) \geq h(Z) + C + E_{z \sim p(z), \epsilon \sim p(\epsilon)}[\log q(z | v_{\theta}(z, 0) + \epsilon)]. \]
+This gives some intuition as to what's going on: we're essentially measuring how succeptible the backwards network is to small peturbations; it seems somewhat related to smoothness as well. As we optimize $ E_{z \sim p(z), \epsilon \sim p(\epsilon)}[\log q(z | v_{\theta}(z, 0) + \epsilon)]$, the bound 
+becomes tighter and tighter, pushing on the entropy. This is far more tractable than trying to compute the entropy of the flow policy directly, and I hope it's something that might work.
+I hope you enjoyed this post.
+
+<br>
+<br>
+Sid
