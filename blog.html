@@ -19,7 +19,7 @@ title: My Blog
         <div class="year-label">{{ year.name }}</div>
         {% for post in year.items %}
         <div class="post-item" data-tag="{{ post.tags | join: ' ' | downcase }}">
-            <a href="{{ post.url }}" class="post-title">{{ post.title }}</a>
+            <a href="{{ post.url | relative_url }}" class="post-title">{{ post.title }}</a>
             {% if post.description %}
             <div class="post-desc">{{ post.description }}</div>
             {% endif %}
@@ -48,7 +48,7 @@ title: My Blog
 </div>
 
 <div style="margin-top: 40px; text-align: center;">
-    <a href="/private_blog.html" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; border: 1px solid var(--accent-color); border-radius: 6px; text-decoration: none; color: var(--text-color); font-size: 0.9em; opacity: 0.7; transition: opacity 0.2s;"
+    <a href="{{ '/private_blog.html' | relative_url }}" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; border: 1px solid var(--accent-color); border-radius: 6px; text-decoration: none; color: var(--text-color); font-size: 0.9em; opacity: 0.7; transition: opacity 0.2s;"
        onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         Private Vault
@@ -65,7 +65,7 @@ title: My Blog
                 <li>Compute the SHA-256 hash of the trimmed text.</li>
                 <li>The resulting 64 hex characters deterministically produce the Heptapod Circle shown at the bottom of the post.</li>
             </ol>
-            <p>The generation algorithm is open and lives in <a href="/heptapod.js" class="clean-link">heptapod.js</a>. The header logo is the Heptapod Circle for the SHA-256 hash of <code>Sidharth Sharma</code>.</p>
+            <p>The generation algorithm is open and lives in <a href="{{ '/heptapod.js' | relative_url }}" class="clean-link">heptapod.js</a>. The header logo is the Heptapod Circle for the SHA-256 hash of <code>Sidharth Sharma</code>.</p>
         </div>
     </details>
 </div>
