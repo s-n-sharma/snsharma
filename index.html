@@ -20,13 +20,13 @@ title: Sidharth Sharma
     <h2>Recent Posts</h2>
     <div class="recent-posts">
         {% for post in site.posts limit:4 %}
-        <a href="{{ post.url }}" class="recent-post-card">
+        <a href="{{ post.url | relative_url }}" class="recent-post-card">
             <span class="recent-post-title">{{ post.title }}</span>
             <span class="recent-post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
         </a>
         {% endfor %}
     </div>
-    <a href="/blog.html" class="see-all-link">All posts &rarr;</a>
+    <a href="{{ '/blog.html' | relative_url }}" class="see-all-link">All posts &rarr;</a>
 </section>
 
 
