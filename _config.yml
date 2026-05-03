@@ -2,6 +2,7 @@ title: Sidharth Sharma
 description: Personal website of Sidharth Sharma
 url: "https://snsharma.xyz"
 baseurl: ""
+theme: null
 
 permalink: /blogs/:title.html
 
