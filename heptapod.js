@@ -1,228 +1,224 @@
 /**
- * Heptapod Circle — turns a SHA-256 hash into a bold, inky ~270° arc SVG
- * inspired by the logograms in Arrival.
+ * Heptapod Circle — renders a SHA-256 hash as a circular ink logogram,
+ * in the spirit of the written language in Arrival.
  *
- * Byte mapping:
- *   0-9   : Arc shape (thickness, wobble, pressure, gap position)
- *   10-29 : Cluster positions and density zones for brush strokes
- *   30-49 : Brush stroke parameters (length, thickness, curvature)
- *   50-63 : Ink splatters near density zones
+ * Everything is derived deterministically from the hash's 32 bytes:
+ *   0-5   : radius wobble (how far the ring departs from a true circle)
+ *   6-12  : brush pressure (where the stroke runs thick or thin)
+ *   13-15 : whether the brush lifts, and where
+ *   16-28 : the flourishes hanging off the ring
+ *   29-31 : ink accents
  */
 
 function heptapodCircle(hexHash, size) {
     size = size || 200;
-    var bytes = [];
-    for (var i = 0; i < 64; i++) {
-        bytes.push(parseInt(hexHash[i], 16) * 17); // 0-255
+
+    var B = [];
+    for (var i = 0; i < 32; i++) {
+        B.push(parseInt(hexHash.substr(i * 2, 2), 16));
+    }
+    function u(i) { return B[((i % 32) + 32) % 32] / 255; }
+
+    var cx = 200, cy = 200, TAU = Math.PI * 2;
+    var baseR = 102;
+
+    function f(n) { return n.toFixed(1); }
+
+    // Catmull-Rom through the sample points, so every edge reads as brushwork
+    // rather than as the polygon it actually is.
+    function smoothOpen(pts, cmd) {
+        var n = pts.length;
+        if (n < 2) return '';
+        var d = (cmd || 'M') + f(pts[0].x) + ',' + f(pts[0].y);
+        for (var i = 0; i < n - 1; i++) {
+            var p0 = pts[i > 0 ? i - 1 : 0];
+            var p1 = pts[i];
+            var p2 = pts[i + 1];
+            var p3 = pts[i + 2 < n ? i + 2 : n - 1];
+            d += ' C' + f(p1.x + (p2.x - p0.x) / 6) + ',' + f(p1.y + (p2.y - p0.y) / 6) +
+                 ' ' + f(p2.x - (p3.x - p1.x) / 6) + ',' + f(p2.y - (p3.y - p1.y) / 6) +
+                 ' ' + f(p2.x) + ',' + f(p2.y);
+        }
+        return d;
     }
 
-    var cx = 200, cy = 200, r = 130;
-    var TAU = Math.PI * 2;
+    function smoothClosed(pts) {
+        var n = pts.length;
+        if (n < 3) return '';
+        var d = 'M' + f(pts[0].x) + ',' + f(pts[0].y);
+        for (var i = 0; i < n; i++) {
+            var p0 = pts[(i - 1 + n) % n];
+            var p1 = pts[i];
+            var p2 = pts[(i + 1) % n];
+            var p3 = pts[(i + 2) % n];
+            d += ' C' + f(p1.x + (p2.x - p0.x) / 6) + ',' + f(p1.y + (p2.y - p0.y) / 6) +
+                 ' ' + f(p2.x - (p3.x - p1.x) / 6) + ',' + f(p2.y - (p3.y - p1.y) / 6) +
+                 ' ' + f(p2.x) + ',' + f(p2.y);
+        }
+        return d + ' Z';
+    }
+
+    // One stroke, given its two edges.
+    function band(outerEdge, innerEdge) {
+        var rev = innerEdge.slice().reverse();
+        return smoothOpen(outerEdge, 'M') + ' ' + smoothOpen(rev, 'L') + ' Z';
+    }
+
+    // --- The ring: radius wobbles gently, thickness swings hard ---
+    var wob1 = { a: 2 + u(0) * 5, fq: 2 + Math.floor(u(1) * 2), ph: u(2) * TAU };
+    var wob2 = { a: 1 + u(3) * 3, fq: 4 + Math.floor(u(4) * 3), ph: u(5) * TAU };
+
+    function radiusAt(a) {
+        return baseR +
+               Math.sin(a * wob1.fq + wob1.ph) * wob1.a +
+               Math.sin(a * wob2.fq + wob2.ph) * wob2.a;
+    }
+
+    var thinW = 1.5 + u(6) * 2;
+    var thickW = 16 + u(7) * 14;
+    var pr1 = { fq: 1, ph: u(8) * TAU, w: 1.0 };
+    var pr2 = { fq: 2 + Math.floor(u(9) * 2), ph: u(10) * TAU, w: 0.6 };
+    var pr3 = { fq: 4 + Math.floor(u(11) * 3), ph: u(12) * TAU, w: 0.3 };
+    var prTotal = pr1.w + pr2.w + pr3.w;
+
+    function widthAt(a) {
+        var v = Math.sin(a * pr1.fq + pr1.ph) * pr1.w +
+                Math.sin(a * pr2.fq + pr2.ph) * pr2.w +
+                Math.sin(a * pr3.fq + pr3.ph) * pr3.w;
+        v = (v / prTotal + 1) / 2;
+        v = v * v * (3 - 2 * v);
+        return thinW + (thickW - thinW) * v;
+    }
+
+    // Some hashes lift the brush: a short break whose ends taper to a point.
+    var lifts = u(13) > 0.45;
+    var liftCenter = u(14) * TAU;
+    var liftHalf = (7 + u(15) * 11) * Math.PI / 180;
+
+    var N = 240;
+    var startA = lifts ? liftCenter + liftHalf : 0;
+    var spanA = lifts ? TAU - liftHalf * 2 : TAU;
+    var lastSample = lifts ? N : N - 1;
+
+    var outer = [], inner = [];
+    for (var si = 0; si <= lastSample; si++) {
+        var t = si / N;
+        var ang = startA + spanA * t;
+        var rr = radiusAt(ang);
+        var w = widthAt(ang);
+        if (lifts) {
+            var e = Math.min(t, 1 - t) / 0.13;
+            if (e < 1) w *= e * e * (3 - 2 * e);
+        }
+        var nx = Math.cos(ang), ny = Math.sin(ang);
+        var px = cx + nx * rr, py = cy + ny * rr;
+        outer.push({ x: px + nx * w / 2, y: py + ny * w / 2 });
+        inner.push({ x: px - nx * w / 2, y: py - ny * w / 2 });
+    }
+
     var svg = '';
+    if (lifts) {
+        svg += '<path class="heptapod-fill" d="' + band(outer, inner) + '"/>';
+    } else {
+        svg += '<path class="heptapod-fill" fill-rule="evenodd" d="' +
+               smoothClosed(outer) + ' ' + smoothClosed(inner) + '"/>';
+    }
 
-    // --- Bytes 0-9: Arc parameters ---
-    var baseThick = 16 + (bytes[0] / 255) * 14;       // 16-30px — very bold
-    var waviness = 1.5 + (bytes[1] / 255) * 4;        // subtle organic wobble
-    var waveFreq = 1.5 + (bytes[2] / 255) * 2.5;      // low freq = smooth
-    var pressureVar = 0.25 + (bytes[3] / 255) * 0.45;
-
-    // --- Single large gap (~70-110°), position determined by bytes[4-5] ---
-    var gapCenter = (bytes[4] / 255) * 360;
-    var gapWidth = 70 + (bytes[5] / 255) * 40;  // 70-110 degree gap
-    var gapStart = ((gapCenter - gapWidth / 2) + 360) % 360;
-    var gapEnd = (gapCenter + gapWidth / 2) % 360;
-
-    function isInGap(deg) {
-        deg = ((deg % 360) + 360) % 360;
-        if (gapStart < gapEnd) {
-            return deg >= gapStart && deg <= gapEnd;
-        } else {
-            return deg >= gapStart || deg <= gapEnd;
+    // A stroke along a cubic. The brush holds its width, then lifts near the
+    // tip — tapering linearly from the base just reads as a stray hair.
+    function taperedCubic(p0, p1, p2, p3, wStart) {
+        var steps = 26, pts = [], i, tt, mt;
+        for (i = 0; i <= steps; i++) {
+            tt = i / steps; mt = 1 - tt;
+            pts.push({
+                x: mt * mt * mt * p0.x + 3 * mt * mt * tt * p1.x + 3 * mt * tt * tt * p2.x + tt * tt * tt * p3.x,
+                y: mt * mt * mt * p0.y + 3 * mt * mt * tt * p1.y + 3 * mt * tt * tt * p2.y + tt * tt * tt * p3.y
+            });
         }
-    }
-
-    // --- Bytes 10-17: 2-3 density cluster centers on the arc ---
-    var numClusters = 2 + Math.floor((bytes[10] / 255) * 2); // 2-3
-    var clusters = [];
-    for (var ci = 0; ci < numClusters; ci++) {
-        var cDeg = (bytes[11 + ci * 2] / 255) * 360;
-        // Push away from gap center so clusters sit on the arc
-        var distFromGap = Math.abs(((cDeg - gapCenter + 540) % 360) - 180);
-        if (distFromGap < gapWidth / 2 + 20) {
-            cDeg = (cDeg + gapWidth) % 360;
+        var oA = [], iA = [];
+        for (i = 0; i <= steps; i++) {
+            var pa = pts[i > 0 ? i - 1 : 0];
+            var pb = pts[i < steps ? i + 1 : steps];
+            var dx = pb.x - pa.x, dy = pb.y - pa.y;
+            var len = Math.sqrt(dx * dx + dy * dy) || 1;
+            var tt2 = i / steps;
+            var hold = tt2 < 0.55 ? 1 : 1 - Math.pow((tt2 - 0.55) / 0.45, 1.4);
+            var half = Math.max(wStart * hold, 0.4) / 2;
+            oA.push({ x: pts[i].x - dy / len * half, y: pts[i].y + dx / len * half });
+            iA.push({ x: pts[i].x + dy / len * half, y: pts[i].y - dx / len * half });
         }
-        var cSpread = 20 + (bytes[12 + ci * 2] / 255) * 30; // how wide each cluster spreads
-        clusters.push({ deg: cDeg, spread: cSpread });
+        return band(oA, iA);
     }
 
-    function clusterDensity(deg) {
-        var maxD = 0;
-        for (var k = 0; k < clusters.length; k++) {
-            var diff = Math.abs(((deg - clusters[k].deg + 540) % 360) - 180);
-            var d = Math.max(0, 1.0 - diff / clusters[k].spread);
-            if (d > maxD) maxD = d;
-        }
-        return maxD;
-    }
+    // --- Flourishes: the part that actually distinguishes one logogram ---
+    var nF = 4 + Math.floor(u(16) * 3);
+    for (var j = 0; j < nF; j++) {
+        var o = 17 + j * 2;
+        var fa = (j / nF) * TAU + (u(o) - 0.5) * (TAU / nF) * 0.8;
 
-    // --- Build the main arc points ---
-    var segments = 540;
-    var arcPoints = [];
-
-    for (var s = 0; s <= segments; s++) {
-        var deg = (s / segments) * 360;
-        if (isInGap(deg)) continue;
-        var angle = (deg / 360) * TAU;
-
-        var wobble = Math.sin(angle * waveFreq + bytes[6] * 0.05) * waviness
-                   + Math.sin(angle * (waveFreq + 1.7) + bytes[7] * 0.03) * waviness * 0.4
-                   + Math.sin(angle * 0.7 + bytes[8] * 0.07) * waviness * 0.25;
-        var pr = r + wobble;
-        var px = cx + Math.cos(angle) * pr;
-        var py = cy + Math.sin(angle) * pr;
-
-        // Pressure varies: thicker at cluster zones
-        var density = clusterDensity(deg);
-        var pressure = 1.0
-                     + Math.sin(angle * 1.3 + bytes[9] * 0.04) * pressureVar
-                     + density * 0.35;
-
-        arcPoints.push({ x: px, y: py, pressure: pressure, angle: angle, deg: deg, r: pr });
-    }
-
-    // --- Draw main arc as thick filled shape ---
-    if (arcPoints.length > 2) {
-        var outerPath = '';
-        var innerPts = [];
-
-        for (var pi = 0; pi < arcPoints.length; pi++) {
-            var pt = arcPoints[pi];
-            var radial = Math.atan2(pt.y - cy, pt.x - cx);
-            var halfW = (baseThick * pt.pressure) / 2;
-            var ox = pt.x + Math.cos(radial) * halfW;
-            var oy = pt.y + Math.sin(radial) * halfW;
-            var ix = pt.x - Math.cos(radial) * halfW;
-            var iy = pt.y - Math.sin(radial) * halfW;
-
-            if (pi === 0) {
-                outerPath = 'M' + ox.toFixed(1) + ',' + oy.toFixed(1);
-            } else {
-                outerPath += ' L' + ox.toFixed(1) + ',' + oy.toFixed(1);
-            }
-            innerPts.push({ x: ix, y: iy });
+        if (lifts) {
+            var away = Math.abs(((fa - liftCenter + Math.PI * 3) % TAU) - Math.PI);
+            if (away > Math.PI - liftHalf - 0.2) fa += liftHalf * 2 + 0.35;
         }
 
-        for (var qi = innerPts.length - 1; qi >= 0; qi--) {
-            outerPath += ' L' + innerPts[qi].x.toFixed(1) + ',' + innerPts[qi].y.toFixed(1);
+        var fr = radiusAt(fa), fw = widthAt(fa);
+        var rx = Math.cos(fa), ry = Math.sin(fa);
+        var tx = -ry, ty = rx;
+        var ox = cx + rx * fr, oy = cy + ry * fr;
+
+        var code = B[(o + 1) % 32];
+        var kind = code % 4;
+        var dir = (code & 4) ? 1 : -1;
+        // Mostly outward: an inward flourish gets swallowed by the ring.
+        var out = (code & 24) !== 0 ? 1 : -1;
+        var L = 24 + u(o + 1) * 32;
+
+        var P = function (radial, tangential) {
+            return {
+                x: ox + rx * radial * out + tx * tangential * dir,
+                y: oy + ry * radial * out + ty * tangential * dir
+            };
+        };
+
+        if (kind === 3) {
+            var lr = 8 + u(o + 1) * 9;
+            var lc = P(lr + fw * 0.3, 0);
+            svg += '<circle class="heptapod-stroke" fill="none" cx="' + f(lc.x) + '" cy="' + f(lc.y) +
+                   '" r="' + f(lr) + '" stroke-width="' + f(Math.max(4, fw * 0.55)) + '"/>';
+            continue;
         }
-        outerPath += ' Z';
 
-        svg += '<path d="' + outerPath + '" class="heptapod-fill"/>';
-    }
-
-    // --- Thick brush strokes concentrated at cluster zones, parallel to arc ---
-    // These are tangential arcs that follow the ring, not radial spikes
-    for (var bi = 0; bi < 48; bi++) {
-        var b0 = bytes[bi % 64] / 255;
-        var b1 = bytes[(bi * 7 + 1) % 64] / 255;
-        var b2 = bytes[(bi * 7 + 2) % 64] / 255;
-        var b3 = bytes[(bi * 7 + 3) % 64] / 255;
-
-        // Place this stroke at a cluster zone
-        var cIdx = bi % clusters.length;
-        var stDeg = clusters[cIdx].deg + (b0 - 0.5) * clusters[cIdx].spread * 2;
-        stDeg = ((stDeg % 360) + 360) % 360;
-
-        // Skip if in gap
-        if (isInGap(stDeg)) continue;
-
-        var density = clusterDensity(stDeg);
-        if (density < 0.15 && bi > 20) continue; // sparse outside clusters
-
-        var stAngle = (stDeg / 360) * TAU;
-        // Tangent direction (perpendicular to radial = parallel to arc)
-        var tangentAngle = stAngle + Math.PI / 2;
-
-        // Offset from ring: stay close
-        var outward = (bi % 3 !== 0);
-        var offset = outward
-            ? baseThick * 0.2 + b1 * 10
-            : -(baseThick * 0.2 + b1 * 8);
-        var brushR = r + offset;
-        var bx = cx + Math.cos(stAngle) * brushR;
-        var by = cy + Math.sin(stAngle) * brushR;
-
-        // Short brush stroke length — must stay local, never bridge
-        var arcLen = 5 + b2 * (density > 0.5 ? 17 : 10);
-        // Tiny radial drift
-        var drift = (b3 - 0.5) * 6;
-
-        var ex = bx + Math.cos(tangentAngle) * arcLen + Math.cos(stAngle) * drift;
-        var ey = by + Math.sin(tangentAngle) * arcLen + Math.sin(stAngle) * drift;
-
-        // Control point for curvature — follows the arc
-        var cpx = (bx + ex) / 2 + Math.cos(stAngle) * (drift * 0.6 + (b1 - 0.5) * 8);
-        var cpy = (by + ey) / 2 + Math.sin(stAngle) * (drift * 0.6 + (b1 - 0.5) * 8);
-
-        var strokeW = density > 0.5
-            ? 2 + b1 * 8    // bold in dense areas
-            : 1 + b1 * 3;   // fine elsewhere
-        var opacity = density > 0.3
-            ? 0.85 + b0 * 0.15
-            : 0.7 + b0 * 0.25;
-
-        svg += '<path d="M' + bx.toFixed(1) + ',' + by.toFixed(1) +
-               ' Q' + cpx.toFixed(1) + ',' + cpy.toFixed(1) +
-               ' ' + ex.toFixed(1) + ',' + ey.toFixed(1) + '"' +
-               ' fill="none" class="heptapod-stroke" opacity="' + opacity.toFixed(2) + '"' +
-               ' stroke-width="' + strokeW.toFixed(1) + '" stroke-linecap="round"/>';
-    }
-
-    // --- Bold endpoint strokes at gap edges (like ink pooling at brush-lift) ---
-    var edgeAngles = [
-        ((gapStart - 5 + 360) % 360) / 360 * TAU,
-        ((gapEnd + 5) % 360) / 360 * TAU
-    ];
-    for (var ei = 0; ei < 2; ei++) {
-        var ea = edgeAngles[ei];
-        var tangent = ea + Math.PI / 2;
-        for (var ej = 0; ej < 4; ej++) {
-            var eb = bytes[(20 + ei * 4 + ej) % 64] / 255;
-            var eb2 = bytes[(28 + ei * 4 + ej) % 64] / 255;
-            var eOffset = (eb - 0.5) * baseThick * 1.5;
-            var eR = r + eOffset;
-            var epx = cx + Math.cos(ea) * eR;
-            var epy = cy + Math.sin(ea) * eR;
-            var eLen = 6 + eb2 * 14;
-            var eDir = (ej % 2 === 0) ? 1 : -1;
-            var eex = epx + Math.cos(tangent) * eLen * eDir + Math.cos(ea) * (eb - 0.5) * 20;
-            var eey = epy + Math.sin(tangent) * eLen * eDir + Math.sin(ea) * (eb - 0.5) * 20;
-
-            svg += '<path d="M' + epx.toFixed(1) + ',' + epy.toFixed(1) +
-                   ' L' + eex.toFixed(1) + ',' + eey.toFixed(1) + '"' +
-                   ' fill="none" class="heptapod-stroke" opacity="' + (0.9 + eb * 0.1).toFixed(2) + '"' +
-                   ' stroke-width="' + (3 + eb2 * 5).toFixed(1) + '" stroke-linecap="round"/>';
+        var p0 = P(-fw * 0.35, 0), p1, p2, p3;
+        if (kind === 0) {           // hook, swinging well clear of the ring
+            p1 = P(L * 0.50, 0);
+            p2 = P(L * 1.05, L * 0.50);
+            p3 = P(L * 0.70, L * 1.20);
+        } else if (kind === 1) {    // curl, coming back toward the ring
+            p1 = P(L * 0.45, L * 0.10);
+            p2 = P(L * 0.95, L * 0.85);
+            p3 = P(L * 0.05, L * 1.05);
+        } else {                    // spur
+            p1 = P(L * 0.40, L * 0.12);
+            p2 = P(L * 0.78, L * 0.34);
+            p3 = P(L * 1.05, L * 0.55);
         }
+
+        svg += '<path class="heptapod-fill" d="' +
+               taperedCubic(p0, p1, p2, p3, Math.max(fw * 0.9, 5.5)) + '"/>';
     }
 
-    // --- Ink splatters near cluster zones ---
-    for (var si = 0; si < 14; si++) {
-        var sb0 = bytes[(50 + si) % 64] / 255;
-        var sb1 = bytes[(51 + si) % 64] / 255;
-        var splatDeg = clusters[si % clusters.length].deg + (sb0 - 0.5) * 60;
-        var splatAngle = (splatDeg / 360) * TAU;
-        var sDist = r + (sb0 - 0.5) * baseThick * 2.5;
-        var sx = cx + Math.cos(splatAngle) * sDist;
-        var sy = cy + Math.sin(splatAngle) * sDist;
-        var sR = 2 + sb1 * 6;
-        var sOp = 0.7 + sb1 * 0.3;
-
-        svg += '<circle cx="' + sx.toFixed(1) + '" cy="' + sy.toFixed(1) +
-               '" r="' + sR.toFixed(1) + '" class="heptapod-fill" opacity="' + sOp.toFixed(2) + '"/>';
+    // --- Ink accents: a couple of deliberate beads on the ring, not dust ---
+    var nD = 1 + Math.floor(u(29) * 3);
+    for (var k = 0; k < nD; k++) {
+        var da = u(30 + k) * TAU;
+        var dRad = radiusAt(da) + (u(31 - k) - 0.5) * 20;
+        var dr = 3.5 + u(28 - k) * 4;
+        svg += '<circle class="heptapod-fill" cx="' + f(cx + Math.cos(da) * dRad) +
+               '" cy="' + f(cy + Math.sin(da) * dRad) + '" r="' + f(dr) + '"/>';
     }
 
-    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="' + size + '" height="' + size + '" class="heptapod-svg">' +
-           svg + '</svg>';
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="' + size +
+           '" height="' + size + '" class="heptapod-svg">' + svg + '</svg>';
 }
 
 /**
@@ -237,10 +233,8 @@ async function hashText(text) {
 
 /**
  * Render the name-hash heptapod logo in the header.
- * Uses a pre-computed SHA-256 of "Sidharth Sharma".
  */
 (async function() {
-    // SHA-256 of "Sidharth Sharma"
     var nameHash = await hashText("Sidharth Sharma");
     var el = document.getElementById('name-heptapod');
     if (el) {

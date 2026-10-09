@@ -359,7 +359,7 @@ body.preload-transitions {
 
 .picture-grid .wide-image-card img {
     width: 100%;
-    height: 340px;
+    height: 280px;
     object-fit: cover;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
@@ -867,9 +867,15 @@ a.tag.git-link:hover {
     line-height: 0;
 }
 
-.heptapod-signature {
-    border-top: none;
-    padding-top: 0;
+.private-link {
+    font-size: 0.78rem;
+    color: var(--accent-color);
+    text-decoration: none;
+    opacity: 0.45;
+    transition: opacity 0.2s;
+}
+.private-link:hover {
+    opacity: 1;
 }
 
 /* --- Home Page Sections --- */
