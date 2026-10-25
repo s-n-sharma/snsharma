@@ -108,3 +108,43 @@ lightboxOverlay.addEventListener('click', () => {
         lightboxOverlay.style.display = 'none';
     }, 300); 
 });
+// --- Glider logo: steps through the four Game of Life phases ---
+// Plays one cycle on page load, then again on each hover. Ends on the resting phase.
+(function () {
+    const glider = document.querySelector('.glider');
+    if (!glider) return;
+    const svg = glider.querySelector('svg');
+
+    // 3x3 phases, recentred so the glider stays in place; the last one is the resting logo
+    const phases = [
+        ['.#.', '..#', '###'],
+        ['#.#', '.##', '.#.'],
+        ['..#', '#.#', '.##'],
+        ['#..', '.##', '##.'],
+    ];
+    const REST = 2;
+
+    function draw(phase) {
+        svg.innerHTML = phase.flatMap((row, y) =>
+            [...row].map((c, x) => c === '#'
+                ? `<rect x="${x * 10}" y="${y * 10}" width="10" height="10"/>`
+                : '')
+        ).join('');
+    }
+
+    let timer = null;
+    function play() {
+        if (timer) return;
+        let i = REST;
+        timer = setInterval(() => {
+            i = (i + 1) % phases.length;
+            draw(phases[i]);
+            if (i === REST) { clearInterval(timer); timer = null; }
+        }, 180);
+    }
+
+    draw(phases[REST]);
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    setTimeout(play, 400);
+    glider.addEventListener('mouseenter', play);
+})();

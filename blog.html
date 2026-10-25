@@ -3,13 +3,7 @@ layout: default
 title: My Blog
 ---
 
-<div class="filter-container">
-    <button class="filter-btn active" onclick="filterPosts('all')">All</button>
-    <button class="filter-btn" onclick="filterPosts('cs')">CS</button>
-    <button class="filter-btn" onclick="filterPosts('physics')">Physics</button>
-    <button class="filter-btn" onclick="filterPosts('life')">Life</button>
-    <button class="filter-btn" onclick="filterPosts('random')">Random</button>
-</div>
+<h1 class="page-title">Blogs</h1>
 
 <div class="post-list">
 
@@ -23,11 +17,6 @@ title: My Blog
             {% if post.description %}
             <div class="post-desc">{{ post.description }}</div>
             {% endif %}
-            <div class="tags">
-                {% for tag in post.tags %}
-                <span class="tag">{{ tag }}</span>
-                {% endfor %}
-            </div>
             <div class="post-meta">{% if post.custom_meta %}{{ post.custom_meta }}{% else %}{{ post.date | date: "%B %-d, %Y" }}{% endif %}{% if post.read_time %} · {{ post.read_time }}{% endif %}</div>
         </div>
         {% endfor %}
@@ -36,9 +25,6 @@ title: My Blog
         <div class="post-item" data-tag="random">
             <a href="blogs/first_post.html" class="post-title">My First Post and thoughts on my website</a>
             <div class="post-desc">Hello there</div>
-            <div class="tags">
-                <span class="tag">Random</span>
-            </div>
             <div class="post-meta">July 16, 2025 · 1 min read</div>
         </div>
         {% endif %}
