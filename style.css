@@ -1172,3 +1172,24 @@ footer { margin-top: 48px; }
 .more-tabs button.active { color: var(--link-color); text-decoration-color: currentColor; }
 .more-panel { margin-top: 14px; }
 .more-panel p { font-size: 1.05rem; color: var(--text-color); }
+
+/* --- Phones: must come last so it overrides the desktop rules above --- */
+@media (max-width: 760px) {
+    body { font-size: 17px; padding: 0 20px; }
+    .container { padding: 24px 0 20px; }
+    header { flex-direction: row; align-items: center; margin-bottom: 36px; padding-bottom: 14px; }
+    nav a { margin-left: 18px; margin-right: 0; }
+    #theme-toggle { margin-left: 14px; }
+    .logo { font-size: 1.15rem; }
+    .glider { font-size: 1.15rem; }
+    .intro { grid-template-columns: 1fr; gap: 24px; margin-bottom: 32px; }
+    .intro h1 { font-size: 2.4rem; margin-bottom: 16px; }
+    .intro p { font-size: 1.05rem; }
+    .intro .image-wrapper { order: -1; max-width: 200px; }
+    .more-tabs { flex-direction: row; }
+    .page-title { font-size: 2.4rem; margin-bottom: 36px; }
+    .post-title { font-size: 1.2rem; }
+    .post-title-large { font-size: 2rem; }
+    main article, .post-content { max-width: 100%; }
+    footer { margin-top: 36px; }
+}
